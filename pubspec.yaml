@@ -1,0 +1,66 @@
+name: sound
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.1 <4.0.0'
+
+dependencies:
+  audio_waveforms: ^1.0.5
+  audioplayers: ^6.0.0
+  awesome_snackbar_content: ^0.1.3
+  card_stack_widget: ^0.1.5
+  country_flags: ^3.0.0
+  curved_text: ^0.2.0
+  flutter:
+    sdk: flutter
+  flutter_animated_button: ^2.0.3
+  flutter_audio_waveforms: ^1.2.1+8
+  flutter_colorpicker: ^1.1.0
+  flutter_gradient_text: ^1.0.1
+  flutter_localizations:
+    sdk: flutter
+  flutter_rating_bar: ^4.0.1
+  flutter_sound: ^9.2.13
+  font_awesome_flutter: ^10.7.0
+  google_fonts: ^6.2.1
+  groq_sdk: ^0.1.0
+  http: ^1.2.1
+  iconsax: ^0.0.8
+  indexed: ^0.0.8
+  intl: any
+  just_audio: ^0.9.38
+  langchain: ^0.7.2
+  langchain_openai: ^0.7.1
+  language_picker: ^0.4.4+1
+  lottie: ^3.1.2
+  path_provider: ^2.1.3
+  permission_handler: ^11.3.1
+  provider: ^6.1.2
+  record: ^5.0.5
+  rive: ^0.13.5
+  siri_wave: ^2.0.0+1
+  skeleton_text: ^3.0.1
+  socket_io_client: ^2.0.3+1
+  sound_stream: ^0.4.1
+  speech_to_text: ^6.6.0
+  stacked_list_carousel: ^1.0.1
+  translator: ^1.0.0
+  voice_message_package: ^2.2.1
+  volume_watcher: ^2.0.1
+  web_socket_channel: ^3.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/animations/
+    - assets/images/Spline.png
+    - assets/images/shapes.riv
+    - assets/images/button.riv
