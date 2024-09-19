@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "302481974676",
+    "project_id": "cardly-4b18a",
+    "storage_bucket": "cardly-4b18a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:302481974676:android:0e5b8b623e85cbc3c45b81",
+        "android_client_info": {
+          "package_name": "com.example.sound"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMdNYkuFXOz-nqta2B9qxUIJzlWroNJPs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

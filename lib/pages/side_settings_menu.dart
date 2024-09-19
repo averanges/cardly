@@ -2,6 +2,7 @@ import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:sound/features/chat/view_model/auth_view_model.dart';
 import 'package:sound/features/chat/view_model/global_user_view_model.dart';
 import 'package:sound/pages/profile_page.dart';
 import 'package:sound/pages/settings_page.dart';
@@ -50,8 +51,11 @@ class _SideBarState extends State<SideBar> {
     },
   ];
 
+  bool _isLogOutLoading = false;
+
   @override
   Widget build(BuildContext context) {
+    AuthViewModel authViewModel = Provider.of<AuthViewModel>(context);
     GlobalUserViewModel globalUserViewModel =
         Provider.of<GlobalUserViewModel>(context);
     return SafeArea(
@@ -93,13 +97,21 @@ class _SideBarState extends State<SideBar> {
                           child: Icon(Icons.person),
                         ),
                         title: Text(
-                          'Nick',
+                          authViewModel.userModel != null &&
+                                  authViewModel.userModel?.userName != null &&
+                                  authViewModel.userModel!.userName.isNotEmpty
+                              ? authViewModel.userModel!.userName
+                              : authViewModel.userModel?.email != null
+                                  ? authViewModel.userModel!.email
+                                  : '',
                           style: GoogleFonts.jost(
                               textStyle: const TextStyle(
                                   fontSize: 15, color: Colors.white)),
                         ),
                         subtitle: Text(
-                          'averanges@kbu.ac.kr',
+                          authViewModel.userModel != null
+                              ? authViewModel.userModel!.email
+                              : '',
                           style: GoogleFonts.jost(
                               textStyle: const TextStyle(
                                   fontSize: 14, color: Colors.white24)),
@@ -153,8 +165,17 @@ class _SideBarState extends State<SideBar> {
                             ),
                             ..._menuList.map(
                               (e) => GestureDetector(
-                                onTap: () {
-                                  if (e['nextPage'] != null) {
+                                onTap: () async {
+                                  if (e['title'] == 'Log out') {
+                                    _isLogOutLoading = true;
+                                    print('click');
+                                    setState(() {});
+                                    await authViewModel.logout(context);
+                                    _isLogOutLoading = false;
+                                    setState(() {});
+                                    return;
+                                  }
+                                  if (e['nextPage'] != null && mounted) {
                                     Navigator.of(context).push(
                                         customPageRouteBuild(
                                             (e['nextPage'] as Widget)));
@@ -166,12 +187,18 @@ class _SideBarState extends State<SideBar> {
                                     e['icon'],
                                     color: e['color'],
                                   ),
-                                  title: Text(
-                                    e['title'],
-                                    style: GoogleFonts.jost(
-                                        textStyle: TextStyle(
-                                            fontSize: 14, color: e['color'])),
-                                  ),
+                                  title: _isLogOutLoading &&
+                                          e['title'] == 'Log out'
+                                      ? const CircularProgressIndicator(
+                                          color: Colors.white,
+                                        )
+                                      : Text(
+                                          e['title'],
+                                          style: GoogleFonts.jost(
+                                              textStyle: TextStyle(
+                                                  fontSize: 14,
+                                                  color: e['color'])),
+                                        ),
                                   subtitle: Text(
                                     e['subTitle'],
                                     style: GoogleFonts.jost(

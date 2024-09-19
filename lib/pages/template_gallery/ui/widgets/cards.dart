@@ -115,28 +115,21 @@ class ContactCard extends StatelessWidget {
                         color: Colors.white,
                         thickness: 0.1,
                       ),
-                      Stack(
-                        children: [
-                          AnimatedOpacity(
-                            opacity: isOpened ? 0 : 1,
-                            duration: const Duration(milliseconds: 150),
-                            child: Text(
-                              descr,
-                              style: GoogleFonts.jost(color: Colors.black54),
-                            ),
-                          ),
-                          AnimatedOpacity(
-                            opacity: isOpened ? 1 : 0,
-                            duration: const Duration(milliseconds: 150),
-                            child: AnimatedIconButton(
-                                title: 'Start Conversation',
-                                nextPage: NewChatScreen(
-                                  cardIndex: cardIndex,
-                                  scenarioType: scenarioType,
-                                )),
-                          )
-                        ],
-                      ),
+                      AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 500),
+                          child: !isOpened
+                              ? Text(
+                                  descr,
+                                  style:
+                                      GoogleFonts.jost(color: Colors.black54),
+                                )
+                              : AnimatedIconButton(
+                                  title: 'Start Conversation',
+                                  nextPage: NewChatScreen(
+                                    chatDifficultLevel: level,
+                                    cardIndex: cardIndex,
+                                    scenarioType: scenarioType,
+                                  ))),
                     ],
                   ),
                 ),

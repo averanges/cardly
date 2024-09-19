@@ -65,13 +65,14 @@ List<Map> transformList = [
 List<Map> transformListData = [
   {
     "title": "Job Interview for a Manager Position",
+    'time': 300,
     'firstMessage': 'Hi, darling, where are you? I cannot find the place.',
     "scenarioType": ScenarioTypes.question,
     "level": ChatDifficultLevels.advanced,
     "descr":
         "You’re interviewing for a managerial role and need to impress the interviewer with your leadership skills and experience.",
     'aiRole':
-        "Act as the interviewer for a managerial role. You are professional, focused, and critical, looking for leadership qualities.",
+        "Act as the interviewer for a tech company. Your company currently searching for Flutter Junior Developer, user in one of applicants, interview his knowledge in Flutter, Dart based on his current level neccessary for this position.  You are professional, focused, and critical, looking for leadership qualities.",
     "tasks": [
       {
         "visibleTask":
@@ -105,6 +106,7 @@ List<Map> transformListData = [
   },
   {
     "title": "Blind Date with High Standards",
+    'time': 300,
     'firstMessage': "Hi, nice to meet you. Let's see if you can impress me.",
     "level": ChatDifficultLevels.advanced,
     "scenarioType": ScenarioTypes.question,
@@ -141,6 +143,7 @@ List<Map> transformListData = [
   },
   {
     "title": "Discussing a Project Proposal with Your Team",
+    'time': 300,
     'firstMessage': 'Hi, darling, where are you? I cannot find the place.',
     "scenarioType": ScenarioTypes.question,
     "level": ChatDifficultLevels.advanced,
@@ -181,6 +184,7 @@ List<Map> transformListData = [
   },
   {
     "title": "Negotiating Rent with Your Landlord",
+    'time': 300,
     'firstMessage': 'Hi, darling, where are you? I cannot find the place.',
     "scenarioType": ScenarioTypes.question,
     "level": ChatDifficultLevels.advanced,
@@ -221,6 +225,7 @@ List<Map> transformListData = [
   },
   {
     "title": "Arranging a Vacation with Your Partner",
+    'time': 300,
     'firstMessage': 'Hi, darling, where are you? I cannot find the place.',
     "scenarioType": ScenarioTypes.question,
     "level": ChatDifficultLevels.intermediate,
@@ -260,14 +265,16 @@ List<Map> transformListData = [
     "imageIcon": 'assets/images/movie.png'
   },
   {
-    "title": "Requesting a Raise from Your Boss",
-    'firstMessage': 'Hi, darling, where are you? I cannot find the place.',
-    "scenarioType": ScenarioTypes.question,
+    "title": "Guess the Mystery Location",
+    'time': 300,
+    'firstMessage':
+        'I’m thinking of a mystiry place. You can ask me 20 yes/no questions to figure out what it is. Do you believe you can find out?',
+    "scenarioType": ScenarioTypes.charades,
     "level": ChatDifficultLevels.intermediate,
     "descr":
-        "You have been working hard and believe you deserve a raise. You’re preparing to talk to your boss about it.",
+        "You're playing a 20 Questions game with your colleague. Will you be able to guess the location?",
     'aiRole':
-        "Act as the user's boss. You are firm and demanding but willing to listen to reasonable arguments.",
+        "You are the colleague who is thinking of a mystery location. Wait for the user to ask questions and respond with 'yes' or 'no' answers. You can make you response more interesting by teasing user, forse them to be more engaged in game. Make sure not to initiate questions. Be playful, energetic, and a bit provocative.",
     "tasks": [
       {
         "visibleTask":
@@ -295,19 +302,56 @@ List<Map> transformListData = [
       // "Ask them for feedback on your recent performance.",
       // "Finally, ask for a raise. "
     ],
-    "colors": [Colors.green, Colors.purple],
+    "colors": [const Color(0xFFedecea), const Color(0xFFdadada)],
     "circleColor": Colors.purple.withOpacity(0.8),
     "imageIcon": 'assets/images/food.png'
   },
   {
-    "title": "Buying Groceries with Your Roommate",
-    'firstMessage': 'Hi, darling, where are you? I cannot find the place.',
-    "scenarioType": ScenarioTypes.question,
+    "title": "Asking for a Refund on a Flight",
+    'firstMessage':
+        "Hey, I had a problem with my flight. Could you help me ask for a refund?",
     "level": ChatDifficultLevels.intermediate,
+    "scenarioType": ScenarioTypes.question,
     "descr":
-        "You’re out shopping for groceries with your roommate, and you need to decide what to buy for dinner.",
+        "You missed your flight and now need to request a refund from the airline. Learn how to ask the right questions to get it processed.",
     'aiRole':
-        "Act as the user's roommate. You are easy-going, casual, but slightly indecisive.",
+        "Act as a customer service representative for an airline. You are polite but firm in explaining the refund process. Expect the first message to be the user's inquiry about the refund.",
+    "tasks": [
+      {
+        "visibleTask": "Ask about the refund policy.",
+        "hiddenTask":
+            "User should ask 'What is the refund policy?' or something similar.",
+        'answer': '',
+        "type": "Inquiry"
+      },
+      {
+        "visibleTask": "Ask for the steps to request a refund.",
+        "hiddenTask": "User should ask 'How can I request a refund?'",
+        'answer': '',
+        "type": "Inquiry"
+      },
+      {
+        "visibleTask": "Ask about the time it takes to receive a refund.",
+        "hiddenTask":
+            "User should ask 'How long will it take to process my refund?'",
+        'answer': '',
+        "type": "Inquiry"
+      }
+    ],
+    "colors": [const Color(0xFFF7D8E9), const Color(0xFF562B63)],
+    "circleColor": lightGreyTextColor.withOpacity(0.8),
+    "imageIcon": 'assets/images/movie.png'
+  },
+  {
+    "title": "Guess the Object in Your Bag",
+    'time': 120,
+    'firstMessage': "Let's start game! Are you ready to start?",
+    "level": ChatDifficultLevels.beginner,
+    "scenarioType": ScenarioTypes.charades,
+    "descr":
+        "You're playing a guessing game with your friend. You need to give them clues to help them guess an item in your bag.",
+    'aiRole':
+        "Act as a playful friend who loves guessing games. You are upbeat, enthusiastic, and ready to guess based on clues. You are playing with user in charades. Your task to provide description of words to the user. If user guess correctly move to next word. List of words ['dog', 'planet', 'sunlight']. Expect the first message from user to be an answer on question: 'Let's start game! Are you ready to start?'",
     "tasks": [
       {
         "visibleTask":
@@ -327,20 +371,139 @@ List<Map> transformListData = [
       {
         "visibleTask": "Describe the layout of the café to your partner.",
         "hiddenTask":
-            "User suppose to describe picture. On picture is shown 'layout of the café'. User have to mention 3 key elements from an image of the café: people, furniture, and lighting. If user mention only one of elements return question about other elements. If user call at least 2 elements return [2]",
+            "User suppose to describe picture. On picture is shown 'layout of the café'. User have to mention 3 key elements from an image of the café: people, furniture, and lighting. If user mention only one of elements return question about other elements. If user call at least 2 elements return [2]. Important note: user's language level is newbie, use only easy phrases and words. Response in Korean language only.",
         'answer': '',
         "type": "Observation"
       }
-      // "Ask your roommate what they want for dinner.",
-      // "Ask if they think you should buy fresh vegetables or frozen.",
-      // "Ask them to decide between pasta or stir fry for dinner."
     ],
-    "colors": [Colors.lightGreen, Colors.teal],
-    "circleColor": Colors.teal.withOpacity(0.8),
-    "imageIcon": 'assets/images/stet.png'
+    "colors": [customButtonColor, lightGreyTextColor],
+    "circleColor": lightGreyTextColor.withOpacity(0.8),
+    "imageIcon": 'assets/images/movie.png'
+  },
+  {
+    "title": "Morning Coffee Date",
+    'time': 500,
+    'firstMessage': 'Hi, darling, where are you? I cannot find the place.',
+    "scenarioType": ScenarioTypes.observation,
+    "level": ChatDifficultLevels.beginner,
+    "descr":
+        "You and your partner decided to go to a café. But your partner got lost in unknown area.",
+    'aiRole':
+        "Act as the user's partnter(girlfriend or boyfriend depends on user's gender). You are too much lovely, supportive, and very noisy. You and your partner decided to go to a café. You got lost and have no idea, where to go. You should ask user how cafe looks like. To do it user get a picture that could have following description: 'The image shows a picturesque, sunlit street lined with quaint buildings painted in warm shades of yellow and orange. Vibrant flowers in pots and hanging baskets adorn the balconies, and cozy outdoor cafés with wooden tables and chairs fill the sidewalk on both sides. Colorful awnings provide shade for the seating areas, and soft lighting from the hanging lamps adds to the inviting atmosphere. In the distance, hills rise up, completing the charming, peaceful European village ambiance.'. If the description they provide reaches around 60% accuracy (user's description can be considered as accurate if it close by meaning) in relation to the café scene, return, 'I get where to go!', if not keep asking user to tell more about this cafe based on image description until it won't get minimum percentage. Expect the first message from user to be an answer on question: 'Hi, darling, where are you? I cannot find the place' .Important note: user's language level is newbie, use only easy phrases and words.'",
+    "tasks": [
+      {
+        "visibleTask":
+            "Ask your partner what coffee options are available at the café.",
+        "hiddenTask":
+            'User have to ask "Ask your partner what coffee options are available at the café.". If user question match fully or close it sense return [0]',
+        'answer': '',
+        "type": "Inquiry"
+      },
+      {
+        "visibleTask": "Ask your partner about their favorite type of coffee.",
+        "hiddenTask":
+            'User have to ask "Ask your partner about their favorite type of coffee."If user question match fully or close it sense response using the word "latte" in your answer.',
+        'answer': 'latte',
+        "type": QuestionScenarioTypeOptions.response
+      },
+      {
+        "visibleTask": "Describe the layout of the café to your partner.",
+        "hiddenTask":
+            "User suppose to describe picture. On picture is shown 'layout of the café'. User have to mention 3 key elements from an image of the café: people, furniture, and lighting. If user mention only one of elements return question about other elements. If user call at least 2 elements return [2]. Important note: user's language level is newbie, use only easy phrases and words. Response in Korean language only.",
+        'answer': '',
+        "type": "Observation"
+      }
+    ],
+    "colors": [Colors.lightBlueAccent, Colors.indigo],
+    "circleColor": Colors.indigo.withOpacity(0.8),
+    "imageIcon": 'assets/images/cafe1.png'
+  },
+  {
+    "title": "Buying a Train Ticket",
+    'time': 300,
+    'firstMessage': "Hi, how can I help you with booking a train ticket today?",
+    "level": ChatDifficultLevels.beginner,
+    "scenarioType": ScenarioTypes.question,
+    "descr":
+        "You need to buy a train ticket and have several questions about schedules, availability, and prices.",
+    'aiRole':
+        "Act as a helpful ticket agent. You provide information about the train schedule, availability, and ticket prices. Expect the first question to be about the ticket booking process.",
+    "tasks": [
+      {
+        "visibleTask": "Ask about the available train schedules for the day.",
+        "hiddenTask":
+            "The user needs to ask 'What time do the trains leave today?' or something similar. If matched, respond with train times and availability.",
+        "answer": "",
+        "type": QuestionScenarioTypeOptions.inquiry
+      },
+      {
+        "visibleTask": "How much cost the ticket for the last train?",
+        "hiddenTask":
+            "The user needs to ask about the cost of a ticket. If matched, respond with ticket price details.",
+        "answer": "180",
+        "type": QuestionScenarioTypeOptions.response
+      },
+      {
+        "visibleTask": "Ask if there are any available discounts.",
+        "hiddenTask":
+            "The user must ask for possible discounts. If matched, provide available discount options.",
+        "answer": "",
+        "type": QuestionScenarioTypeOptions.inquiry
+      },
+      {
+        "visibleTask": "Ask about luggage allowances.",
+        "hiddenTask":
+            "The user must ask about bringing luggage. If matched, respond with luggage rules and limits.",
+        "answer": "",
+        "type": QuestionScenarioTypeOptions.inquiry
+      }
+    ],
+    "colors": [const Color(0xFF918b05), const Color(0xFFeeebd7)],
+    "circleColor": const Color(0xFFFCFF9E),
+    "imageIcon": 'assets/images/train.png'
+  },
+  {
+    "title": "Describing Your Apartment to a Roommate",
+    'time': 300,
+    'firstMessage':
+        "Hey, can you tell me what your apartment looks like? I want to see if it's a good fit.",
+    "scenarioType": ScenarioTypes.observation,
+    "level": ChatDifficultLevels.beginner,
+    "descr":
+        "Your roommate is considering moving in and needs to know what your apartment looks like.",
+    'aiRole':
+        "Act as a potential roommate. You are interested in knowing what the apartment looks like and will ask follow-up questions if details are unclear. Expect the first message to be an answer to 'Can you describe your apartment?'.'",
+    "tasks": [
+      {
+        "visibleTask":
+            "Ask your partner what coffee options are available at the café.",
+        "hiddenTask":
+            'User have to ask "Ask your partner what coffee options are available at the café.". If user question match fully or close it sense return [0]',
+        'answer': '',
+        "type": "Inquiry"
+      },
+      {
+        "visibleTask": "Ask your partner about their favorite type of coffee.",
+        "hiddenTask":
+            'User have to ask "Ask your partner about their favorite type of coffee."If user question match fully or close it sense response using the word "latte" in your answer.',
+        'answer': 'latte',
+        "type": "Response"
+      },
+      {
+        "visibleTask": "Describe the layout of the café to your partner.",
+        "hiddenTask":
+            "User suppose to describe picture. On picture is shown 'layout of the café'. User have to mention 3 key elements from an image of the café: people, furniture, and lighting. If user mention only one of elements return question about other elements. If user call at least 2 elements return [2]. Important note: user's language level is newbie, use only easy phrases and words. Response in Korean language only.",
+        'answer': '',
+        "type": "Observation"
+      }
+    ],
+    "colors": [const Color(0xFFF7D8E9), const Color(0xFF562B63)],
+    "circleColor": Colors.indigo.withOpacity(0.8),
+    "imageIcon": 'assets/images/dorm_room.png'
   },
   {
     "title": "Scheduling a Doctor's Appointment with Receptionist",
+    'time': 300,
     'firstMessage': 'Hi, darling, where are you? I cannot find the place.',
     "scenarioType": ScenarioTypes.question,
     "level": ChatDifficultLevels.beginner,
@@ -381,6 +544,7 @@ List<Map> transformListData = [
   },
   {
     "title": "Checking into a Hotel for the First Time",
+    'time': 300,
     "descr": "You're on your first solo trip and checking into a hotel.",
     "level": ChatDifficultLevels.newbie,
     "scenarioType": ScenarioTypes.question,
@@ -431,6 +595,7 @@ List<Map> transformListData = [
   },
   {
     "title": "First Day in a Language Class",
+    'time': 300,
     "descr":
         "You're attending your first-ever language class. You’ll be asked to introduce yourself, share your goals, and make a new friend. Make sure you remember the basic phrases!",
     "level": ChatDifficultLevels.newbie,
@@ -474,12 +639,13 @@ List<Map> transformListData = [
         "answer": ""
       }
     ],
-    "colors": [const Color(0xFFf7d8d1), const Color(0xFFd1f0f7)],
+    "colors": [const Color(0xFFd1f0f7), const Color(0xFFf7d8d1)],
     "circleColor": lightGreyTextColor.withOpacity(0.8),
     "imageIcon": 'assets/images/grocery.png'
   },
   {
     "title": "Cleaning up a Messy Room",
+    'time': 120,
     "descr":
         "You're helping to clean up a messy room with your friend. The room has several objects lying around, and you will help by describing the objects to figure out what to clean up next.",
     "level": ChatDifficultLevels.newbie,
@@ -519,18 +685,19 @@ List<Map> transformListData = [
       const Color(0xFF7d6a2b)
     ],
     "circleColor": lightGreyTextColor.withOpacity(0.8),
-    "imageIcon": 'assets/images/grocery.png'
+    "imageIcon": 'assets/images/room.png'
   },
   {
     "title": "In the Zoo with Your Little Sister",
+    'time': 120,
     "descr":
-        "You're visiting the zoo with your little sister. She points to different animals, and you need to help her by describing the animals in simple terms so she can guess which animal it is.",
+        "You're visiting the zoo with your little sister. She describe different animals, and you need to guess which animal it is.",
     "level": ChatDifficultLevels.newbie,
     "scenarioType": ScenarioTypes.charades,
     'firstMessage':
         "Hey. Do you want to play game? Please, play with, I'm bored!",
     "aiRole":
-        "Act as the little sister who’s excited to guess animals based on the descriptions given by the user. Use simple and enthusiastic language. You are playing with user in charades. Your task to provide description of words to the user. If user guess correctly move to next word. Create a list of words by yourself. Expect the first message from user to be an answer on question: 'Hey. Do you want to play game? Please, play with, I'm bored!'",
+        "Act as the little sister who’s excited to guess animals based on the descriptions given by the user. Use simple and enthusiastic language, act as 6 years old, use appropriate to this age vocabulary. You are playing with user in charades. Your task to provide description of words to the user. If user guess correctly move to next word. List of animals consist of ['giraffe', 'elephant', 'tiger', 'lion', 'wolf', 'bear', 'turtle', 'horse', 'fox','monkey', 'crocodile']. Describe these animals in random order. If user correctly guess all animals create new list and continue game. Expect the first message from user to be an answer on question: 'Hey. Do you want to play game? Please, play with, I'm bored!'",
     "tasks": [
       {
         "visibleTask": "Describe the first animal your sister points to.",
@@ -556,10 +723,11 @@ List<Map> transformListData = [
     ],
     "colors": [const Color(0xFFff4000), const Color(0xFFff8500)],
     "circleColor": lightGreyTextColor.withOpacity(0.8),
-    "imageIcon": 'assets/images/grocery.png'
+    "imageIcon": 'assets/images/zoo.jpg'
   },
   {
     "title": "Visiting Local Grocery Store in Village",
+    'time': 300,
     'firstMessage': "Hey there! Please, come in. Do you need any help with?",
     "level": ChatDifficultLevels.newbie,
     "scenarioType": ScenarioTypes.question,
@@ -604,85 +772,13 @@ List<Map> transformListData = [
         "type": "Inquiry"
       }
     ],
-    "colors": [Colors.white, const Color(0xFF95c4e5)],
+    "colors": [Colors.white, const Color.fromRGBO(149, 196, 229, 1)],
     "circleColor": lightGreyTextColor.withOpacity(0.8),
     "imageIcon": 'assets/images/grocery.png'
   },
-  {
-    "title": "Guess the Object in Your Bag",
-    'firstMessage': "Let's start game! Are you ready to start?",
-    "level": ChatDifficultLevels.beginner,
-    "scenarioType": ScenarioTypes.charades,
-    "descr":
-        "You're playing a guessing game with your friend. You need to give them clues to help them guess an item in your bag.",
-    'aiRole':
-        "Act as a playful friend who loves guessing games. You are upbeat, enthusiastic, and ready to guess based on clues. You are playing with user in charades. Your task to provide description of words to the user. If user guess correctly move to next word. List of words ['dog', 'planet', 'sunlight']. Expect the first message from user to be an answer on question: 'Let's start game! Are you ready to start?'",
-    "tasks": [
-      {
-        "visibleTask":
-            "Ask your partner what coffee options are available at the café.",
-        "hiddenTask":
-            'User have to ask "Ask your partner what coffee options are available at the café.". If user question match fully or close it sense return [0]',
-        'answer': '',
-        "type": "Inquiry"
-      },
-      {
-        "visibleTask": "Ask your partner about their favorite type of coffee.",
-        "hiddenTask":
-            'User have to ask "Ask your partner about their favorite type of coffee."If user question match fully or close it sense response using the word "latte" in your answer.',
-        'answer': 'latte',
-        "type": "Response"
-      },
-      {
-        "visibleTask": "Describe the layout of the café to your partner.",
-        "hiddenTask":
-            "User suppose to describe picture. On picture is shown 'layout of the café'. User have to mention 3 key elements from an image of the café: people, furniture, and lighting. If user mention only one of elements return question about other elements. If user call at least 2 elements return [2]. Important note: user's language level is newbie, use only easy phrases and words. Response in Korean language only.",
-        'answer': '',
-        "type": "Observation"
-      }
-    ],
-    "colors": [customButtonColor, lightGreyTextColor],
-    "circleColor": lightGreyTextColor.withOpacity(0.8),
-    "imageIcon": 'assets/images/movie.png'
-  },
-  {
-    "title": "Morning Coffee Date",
-    'firstMessage': 'Hi, darling, where are you? I cannot find the place.',
-    "scenarioType": ScenarioTypes.observation,
-    "level": ChatDifficultLevels.beginner,
-    "descr":
-        "You and your partner decided to go to a café. But your partner got lost in unknown area.",
-    'aiRole':
-        "Act as the user's partnter(girlfriend or boyfriend depends on user's gender). You are too much lovely, supportive, and very noisy. You and your partner decided to go to a café. You got lost and have no idea, where to go. You should ask user how cafe looks like. To do it user get a picture that could have following description: 'The image shows a picturesque, sunlit street lined with quaint buildings painted in warm shades of yellow and orange. Vibrant flowers in pots and hanging baskets adorn the balconies, and cozy outdoor cafés with wooden tables and chairs fill the sidewalk on both sides. Colorful awnings provide shade for the seating areas, and soft lighting from the hanging lamps adds to the inviting atmosphere. In the distance, hills rise up, completing the charming, peaceful European village ambiance.'. If the description they provide reaches around 60% accuracy (user's description can be considered as accurate if it close by meaning) in relation to the café scene, return, 'I get where to go!', if not keep asking user to tell more about this cafe based on image description until it won't get minimum percentage. Expect the first message from user to be an answer on question: 'Hi, darling, where are you? I cannot find the place' .Important note: user's language level is newbie, use only easy phrases and words.'",
-    "tasks": [
-      {
-        "visibleTask":
-            "Ask your partner what coffee options are available at the café.",
-        "hiddenTask":
-            'User have to ask "Ask your partner what coffee options are available at the café.". If user question match fully or close it sense return [0]',
-        'answer': '',
-        "type": "Inquiry"
-      },
-      {
-        "visibleTask": "Ask your partner about their favorite type of coffee.",
-        "hiddenTask":
-            'User have to ask "Ask your partner about their favorite type of coffee."If user question match fully or close it sense response using the word "latte" in your answer.',
-        'answer': 'latte',
-        "type": "Response"
-      },
-      {
-        "visibleTask": "Describe the layout of the café to your partner.",
-        "hiddenTask":
-            "User suppose to describe picture. On picture is shown 'layout of the café'. User have to mention 3 key elements from an image of the café: people, furniture, and lighting. If user mention only one of elements return question about other elements. If user call at least 2 elements return [2]. Important note: user's language level is newbie, use only easy phrases and words. Response in Korean language only.",
-        'answer': '',
-        "type": "Observation"
-      }
-    ],
-    "colors": [Colors.lightBlueAccent, Colors.indigo],
-    "circleColor": Colors.indigo.withOpacity(0.8),
-    "imageIcon": 'assets/images/movie.png'
-  },
 ];
+
+enum QuestionScenarioTypeOptions { inquiry, response }
 
 enum ScenarioTypes { question, observation, charades }
 
@@ -695,6 +791,17 @@ extension ScenarioTypesData on ScenarioTypes {
         return Iconsax.image;
       case ScenarioTypes.charades:
         return FontAwesomeIcons.lightbulb;
+    }
+  }
+
+  String get type {
+    switch (this) {
+      case ScenarioTypes.question:
+        return "Inquiry";
+      case ScenarioTypes.observation:
+        return "Picture";
+      case ScenarioTypes.charades:
+        return "Charades";
     }
   }
 }

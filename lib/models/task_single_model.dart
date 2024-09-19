@@ -1,6 +1,6 @@
 class TaskSingleModel {
   final int taskIndex;
-  final Map<String, String> singleTask;
+  final Map<String, dynamic> singleTask;
   bool taskCompleted;
 
   TaskSingleModel(
@@ -13,7 +13,9 @@ class TaskSingleModel {
       "index": taskIndex,
       "visibleTask": singleTask['visibleTask'],
       "hiddenTask": singleTask['hiddenTask'],
-      "completed": taskCompleted
+      "completed": taskCompleted,
+      'type': singleTask['type'],
+      'answer': singleTask['answer']
     };
   }
 

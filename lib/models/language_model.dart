@@ -1,8 +1,8 @@
 class LanguageModel {
   LanguageModel({
-    required this.name,
-    required this.countryCode,
-    required this.languageCode,
+    this.name = '',
+    this.countryCode = '',
+    this.languageCode = '',
   });
 
   final String name;

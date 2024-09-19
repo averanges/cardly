@@ -7,6 +7,10 @@ import 'dart:typed_data';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_gradient_animation_text/flutter_gradient_animation_text.dart';
+import 'package:flutter_gradient_text/flutter_gradient_text.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -34,7 +38,9 @@ import 'package:sound/models/score_model.dart';
 import 'package:sound/pages/score_page.dart';
 import 'package:sound/pages/template_gallery/ui/widgets/animated_gradient_text.dart';
 import 'package:sound/pages/template_gallery/ui/widgets/animated_icon_button.dart';
+import 'package:sound/pages/template_gallery/ui/widgets/chat_completed_score.dart';
 import 'package:sound/utils/colors.dart';
+import 'package:sound/utils/convert_string_to_time.dart';
 import 'package:sound/utils/transform_list.dart';
 import 'package:sound_stream/sound_stream.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -42,10 +48,15 @@ import 'package:translator/translator.dart';
 import 'package:volume_watcher/volume_watcher.dart';
 
 class NewChatScreen extends StatefulWidget {
-  const NewChatScreen(
-      {super.key, required this.cardIndex, required this.scenarioType});
+  const NewChatScreen({
+    super.key,
+    required this.cardIndex,
+    required this.scenarioType,
+    required this.chatDifficultLevel,
+  });
   final int cardIndex;
   final ScenarioTypes scenarioType;
+  final ChatDifficultLevels chatDifficultLevel;
 
   @override
   State<NewChatScreen> createState() => _NewChatScreenState();
@@ -147,6 +158,7 @@ class _NewChatScreenState extends State<NewChatScreen> {
     String tasksToString = _tasksCompletedViewModel.tasksToString();
 
     _groqHandleViewModel.initializeGroqChats(
+        level: widget.chatDifficultLevel,
         scenarioType: widget.scenarioType,
         tasksString: tasksToString,
         aiRole: transformListData[widget.cardIndex]['aiRole']);
@@ -194,10 +206,11 @@ class _NewChatScreenState extends State<NewChatScreen> {
             child: RecordInheritedNotifier(
               notifier: _recordViewModel,
               child: ChatWidget(
+                  chatDifficultLevel: widget.chatDifficultLevel,
                   scenarioType: widget.scenarioType,
                   cardIndex: widget.cardIndex,
                   taskListLength: (transformListData[widget.cardIndex]['tasks']
-                          as List<Map<String, String>>)
+                          as List<Map<String, dynamic>>)
                       .length,
                   playChunks: playChunks,
                   isStreamStart: _isStreamStart,
@@ -230,6 +243,7 @@ class ChatWidget extends StatefulWidget {
       required this.isStreamStart,
       required GoogleTranslator translator,
       required this.scenarioType,
+      required this.chatDifficultLevel,
       required this.taskListLength})
       : _messageListScrollController = messageListScrollController,
         _itemsKey = itemsKey,
@@ -249,29 +263,36 @@ class ChatWidget extends StatefulWidget {
   final int cardIndex;
   final int taskListLength;
   final ScenarioTypes scenarioType;
+  final ChatDifficultLevels chatDifficultLevel;
 
   @override
   State<ChatWidget> createState() => _ChatWidgetState();
 }
 
 class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
-  static const String XI_API_KEY = "c733ed01dfe9e072bd866a3099e4dc46";
+  final String xiApiKey = dotenv.env['XI_API_KEY']!;
   final FocusNode _focusNode = FocusNode();
   final List<File> _allTempFiles = [];
   int _responseTime = 0;
   late AllMessageViewModel allMessageViewModel;
   bool _isFirstBotMessageArrived = false;
   int _countOfRequest = 0;
-  final int _maxCountRequest = 7;
+  final int _maxCountRequest = 20;
   final List<int> _allResponseTimeData = [];
   Timer? _responseSpeedTimer;
   final List<int> _taskCompletionIndexes = [];
   MessageModel? firstMessage;
-  int _globalChatTime = 90;
+  late int _globalChatTime;
   late Timer _globalTimeCountTimer;
   late AnimationController _timerAnimationController;
+  late AnimationController _likeScoreAnimationController;
   bool _isAddedNumberIsVisible = false;
   int _correctGuessAmount = 0;
+  late AnimationController _chatCompletionAnimationController;
+  late TasksCompletedViewModel tasksCompletedViewModel;
+
+  late ScoreModel _scoreModel;
+  int likeScore = 0;
 
   // List<Color> _gradientColors = [lightGreyTextColor, primaryPurpleColor, lightGreyTextColor];
 
@@ -280,7 +301,7 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
       final response = await http
           .get(Uri.parse('https://api.elevenlabs.io/v1/voices'), headers: {
         "Accept": "application/json",
-        "xi-api-key": XI_API_KEY,
+        "xi-api-key": xiApiKey,
         "Content-Type": "application/json"
       }).then((value) => jsonDecode(value.body));
 
@@ -294,6 +315,46 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    _likeScoreAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _chatCompletionAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _chatCompletionAnimationController.addListener(() {
+      if (_chatCompletionAnimationController.status ==
+          AnimationStatus.completed) {
+        Future.delayed(
+            const Duration(seconds: 2),
+            () => _chatCompletionAnimationController.reverse().then((_) {
+                  showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (context) => PopScope(
+                            canPop: false,
+                            child: Dialog(
+                                child: ChatCompletedScore(
+                              cardIndex: widget.cardIndex,
+                              chatDifficultLevel: widget.chatDifficultLevel,
+                              correctGuess: _correctGuessAmount,
+                              scenarioType: widget.scenarioType,
+                              responsivenessRate: _scoreModel
+                                  .calculateOverallResponsivenessScore(),
+                              accuracy: _scoreModel.getUserAccuracy(),
+                              engagementScore:
+                                  _scoreModel.calculateEngagementScore(),
+                              tasksCompletionScore:
+                                  _scoreModel.calculateTaskCompletionRatio(),
+                            )),
+                          ));
+                }));
+      }
+      setState(() {});
+    });
+
+    _globalChatTime = transformListData[widget.cardIndex]['time'] as int;
     _timerAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
@@ -313,10 +374,11 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
       if (_globalChatTime > 0) {
         setState(() {
           _globalChatTime--;
-          print(_globalChatTime);
         });
       } else {
         timer.cancel();
+        tasksCompletedViewModel.isChatCompletedSuccess = false;
+        _chatCompletionAnimationController.forward();
       }
     });
     super.initState();
@@ -326,15 +388,20 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
   void didChangeDependencies() {
     // getVoices();
     super.didChangeDependencies();
+    tasksCompletedViewModel = Provider.of<TasksCompletedViewModel>(context);
     allMessageViewModel = AllMessageInheritedNotifier.of(context);
     if (firstMessage == null) {
       firstMessage = MessageModel(type: MessageTypes.botMessage);
-      if (widget.scenarioType == ScenarioTypes.observation) {
+      if (widget.scenarioType == ScenarioTypes.observation ||
+          (widget.scenarioType == ScenarioTypes.charades &&
+              widget.chatDifficultLevel == ChatDifficultLevels.newbie)) {
         MessageModel image = MessageModel(type: MessageTypes.image);
         WidgetsBinding.instance.addPostFrameCallback((_) {
           allMessageViewModel.addMessage(image);
-          Timer(const Duration(seconds: 5),
-              () => image.setImage = 'assets/images/room.png');
+          Timer(
+              const Duration(seconds: 5),
+              () => image.setImage =
+                  transformListData[widget.cardIndex]['imageIcon']);
         });
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -358,6 +425,13 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
 
       _isFirstBotMessageArrived = true;
     }
+    _scoreModel = ScoreModel(
+        allMessages: allMessageViewModel.allMessages,
+        allResponseTimeData: _allResponseTimeData,
+        totalEvents: _countOfRequest,
+        completionIndexes: _taskCompletionIndexes,
+        allTasks: widget.taskListLength,
+        completedTasks: tasksCompletedViewModel.completedTasksNumber());
   }
 
   bool getTaskCompletionCase(String result) {
@@ -396,6 +470,7 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
     if (_responseSpeedTimer != null) _responseSpeedTimer?.cancel();
     _globalTimeCountTimer.cancel();
     _timerAnimationController.dispose();
+    _chatCompletionAnimationController.dispose();
     _deleteTempFiles();
     super.dispose();
   }
@@ -405,12 +480,10 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
     final widthOfScreen = MediaQuery.of(context).size.width;
     final globalSettings = Provider.of<GlobalChatSettingsViewModel>(context);
     final RecordViewModel recordViewModel = RecordInheritedNotifier.of(context);
-    final TasksCompletedViewModel tasksCompletedViewModel =
-        Provider.of<TasksCompletedViewModel>(context);
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80),
+        preferredSize: const Size.fromHeight(100),
         child: Column(
           children: [
             AppBar(
@@ -439,15 +512,11 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
               actions: [
                 IconButton(
                   onPressed: () {
-                    _globalChatTime += 10;
-                    _timerAnimationController.forward(from: 0.0);
-                    setState(() {});
-                    // showDialog(
-                    //     context: context,
-                    //     builder: (BuildContext context) =>
-                    //         SettingsModalWindow(
-                    //           globalSettings: globalSettings,
-                    //         ));
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) => SettingsModalWindow(
+                              globalSettings: globalSettings,
+                            ));
                   },
                   icon: const CircleAvatar(
                     radius: 23,
@@ -477,34 +546,53 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
             const SizedBox(
               height: 5,
             ),
-            Container(
-              height: 2,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: lightGreyTextColor.withOpacity(0.5),
-                borderRadius: const BorderRadius.all(Radius.circular(20)),
-              ),
-              child: Row(
-                  children: List.generate(_maxCountRequest, (int index) {
-                bool isFilled = false;
-                for (var i = 1; i < _countOfRequest + 1; i++) {
-                  if (i - 1 == index) {
-                    isFilled = true;
-                  }
-                }
-                return Flexible(
-                    flex: 1,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color:
-                            !isFilled ? Colors.transparent : primaryPurpleColor,
-                        border: const Border.symmetric(
-                            vertical: BorderSide(
-                                style: BorderStyle.solid, color: Colors.white)),
-                      ),
-                    ));
-              })),
+            // Container(
+            //   height: 2,
+            //   width: double.infinity,
+            //   decoration: BoxDecoration(
+            //     color: lightGreyTextColor.withOpacity(0.5),
+            //     borderRadius: const BorderRadius.all(Radius.circular(20)),
+            //   ),
+            //   child: Row(
+            //       children: List.generate(_maxCountRequest, (int index) {
+            //     bool isFilled = false;
+            //     for (var i = 1; i < _countOfRequest + 1; i++) {
+            //       if (i - 1 == index) {
+            //         isFilled = true;
+            //       }
+            //     }
+            //     return Flexible(
+            //         flex: 1,
+            //         child: Container(
+            //           decoration: BoxDecoration(
+            //             color:
+            //                 !isFilled ? Colors.transparent : primaryPurpleColor,
+            //             border: const Border.symmetric(
+            //                 vertical: BorderSide(
+            //                     style: BorderStyle.solid, color: Colors.white)),
+            //           ),
+            //         ));
+            //   })),
+            // ),
+            const Divider(
+              height: 1,
+              thickness: 0.4,
             ),
+            TaskCompletenessBar(
+              likeScore: likeScore,
+              controller: _likeScoreAnimationController,
+              chatDifficultLevel: widget.chatDifficultLevel,
+              correctGuess: _correctGuessAmount,
+              scenarioType: widget.scenarioType,
+              allTasks: tasksCompletedViewModel.tasksCompletionMapsList.length,
+              completedTasks: tasksCompletedViewModel.completedTasksNumber(),
+              isCompleted: tasksCompletedViewModel.isChatCompletedSuccess,
+              progress: tasksCompletedViewModel.progress,
+              voidCallback: () {
+                _globalTimeCountTimer.cancel();
+                _chatCompletionAnimationController.forward();
+              },
+            )
           ],
         ),
       ),
@@ -519,499 +607,581 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
             Navigator.pop(context);
           }
         },
-        child: Stack(
-          children: [
-            Container(
-              width: double.infinity,
-              height: double.infinity,
-              padding: const EdgeInsets.only(bottom: 5, left: 5, right: 5),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      controller: widget._messageListScrollController,
-                      itemCount: allMessageViewModel.allMessages.length,
-                      itemBuilder: (context, index) {
-                        final MessageModel messageObj =
-                            allMessageViewModel.allMessages[index];
-                        final GlobalKey messageKey = GlobalKey();
-                        widget._itemsKey[index] = messageKey;
-                        if (messageObj.type == MessageTypes.botMessage) {
-                          final List<String> paragraphs =
-                              messageObj.messageContent.split("\n");
-                          return BotMessage(
-                            isLast: index ==
-                                allMessageViewModel.allMessages.length - 1,
-                            isStreamStart: widget.isStreamStart,
-                            callback: _addNewFileToList,
-                            audioBytes: messageObj.audioBytes == null
-                                ? Uint8List(0)
-                                : messageObj.audioBytes!,
-                            isNewMessageLoading: widget._isNewMessageLoading,
-                            originalMessage: messageObj.messageContent,
-                            messageKey: messageKey,
-                            paragraphs: paragraphs,
-                          );
-                        } else if (messageObj.type ==
-                            MessageTypes.userMessage) {
-                          return UserMessage(
-                              isCorrect: messageObj.isCorrect,
-                              mistakes: messageObj.mistakes,
-                              message: messageObj.messageContent,
-                              messageKey: messageKey);
-                        } else if (messageObj.type ==
-                            MessageTypes.taskCompleteMessage) {
-                          return TaskCompletedMessage(
-                            id: messageObj.id!,
-                            count: messageObj.messageContent,
-                            widthOfScreen: widthOfScreen,
-                          );
-                        } else if (messageObj.type ==
-                            MessageTypes.chatCompleteMessage) {
-                          return ChatCompleteMessage(
-                            scoreModel: ScoreModel(
-                                allMessages: allMessageViewModel.allMessages,
-                                allResponseTimeData: _allResponseTimeData,
-                                totalEvents: _countOfRequest,
-                                completionIndexes: _taskCompletionIndexes,
-                                allTasks: widget.taskListLength,
-                                completedTasks: tasksCompletedViewModel
-                                    .completedTasksNumber()),
-                          );
-                        } else if (messageObj.type == MessageTypes.image) {
-                          return ImageMessage(
-                            image: messageObj.image ?? '',
-                          );
-                        }
-                        return null;
-                      },
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                height: double.infinity,
+                padding: const EdgeInsets.only(bottom: 5, left: 5, right: 5),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        controller: widget._messageListScrollController,
+                        itemCount: allMessageViewModel.allMessages.length,
+                        itemBuilder: (context, index) {
+                          final MessageModel messageObj =
+                              allMessageViewModel.allMessages[index];
+                          final GlobalKey messageKey = GlobalKey();
+                          widget._itemsKey[index] = messageKey;
+                          if (messageObj.type == MessageTypes.botMessage) {
+                            final List<String> paragraphs =
+                                messageObj.messageContent.split("\n");
+                            return BotMessage(
+                              isLast: index ==
+                                  allMessageViewModel.allMessages.length - 1,
+                              isStreamStart: widget.isStreamStart,
+                              callback: _addNewFileToList,
+                              audioBytes: messageObj.audioBytes == null
+                                  ? Uint8List(0)
+                                  : messageObj.audioBytes!,
+                              isNewMessageLoading: widget._isNewMessageLoading,
+                              originalMessage: messageObj.messageContent,
+                              messageKey: messageKey,
+                              paragraphs: paragraphs,
+                            );
+                          } else if (messageObj.type ==
+                              MessageTypes.userMessage) {
+                            return UserMessage(
+                                isCorrect: messageObj.isCorrect,
+                                mistakes: messageObj.mistakes,
+                                message: messageObj.messageContent,
+                                messageKey: messageKey);
+                          } else if (messageObj.type ==
+                              MessageTypes.taskCompleteMessage) {
+                            return TaskCompletedMessage(
+                              id: messageObj.id!,
+                              count: messageObj.messageContent,
+                              widthOfScreen: widthOfScreen,
+                            );
+                          } else if (messageObj.type == MessageTypes.image) {
+                            return ImageMessage(
+                              image: messageObj.image ?? '',
+                            );
+                          }
+                          return null;
+                        },
+                      ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: Column(
-                      children: [
-                        AnimatedGradientText(
-                            text:
-                                'Say "Finish Conversation" to complete chat and see your results',
-                            isVisible: globalSettings.isChatCompleted == true
-                                ? false
-                                : _maxCountRequest <= _countOfRequest),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            RecordButton(
-                              isChatCompleted: globalSettings.isChatCompleted,
-                              voidCallback: _update,
-                              recordViewModel: recordViewModel,
-                              color: customGreenColor,
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                                child: Container(
-                              alignment: Alignment.bottomCenter,
-                              height: 70,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(60)),
-                                    border: Border.all(
-                                        style: BorderStyle.solid,
-                                        color: Colors.white.withOpacity(0.8)),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color.fromARGB(
-                                                255, 255, 255, 255)
-                                            .withOpacity(0.8),
-                                        spreadRadius: -8.0,
-                                        blurRadius: 10.0,
-                                        offset: const Offset(0, 2),
-                                      )
-                                    ]),
-                                child: Scrollbar(
-                                  controller: widget._scrollController,
-                                  thickness: 2,
-                                  child: TextField(
-                                    enabled:
-                                        globalSettings.isChatCompleted == true
-                                            ? globalSettings.isChatCompleted
-                                            : recordViewModel
-                                                .controllerViewModel
-                                                .isTextFieldReadOnly,
-                                    scrollController:
-                                        recordViewModel.isRecording
-                                            ? widget._scrollController
-                                            : null,
-                                    maxLines: null,
-                                    minLines: null,
-                                    keyboardType: TextInputType.multiline,
-                                    textAlignVertical: TextAlignVertical.center,
-                                    onChanged: (value) {
-                                      recordViewModel.controllerViewModel
-                                          .setTextController = value;
-                                      recordViewModel.completeSpeech.clear();
-                                      recordViewModel.completeSpeech.add(value);
-                                    },
-                                    focusNode: _focusNode,
-                                    controller: recordViewModel.textController,
-                                    style: GoogleFonts.jost(
-                                        textStyle:
-                                            const TextStyle(fontSize: 12)),
-                                    decoration: InputDecoration(
-                                        suffixIcon: recordViewModel
-                                                .textController
-                                                .value
-                                                .text
-                                                .isNotEmpty
-                                            ? IconButton(
-                                                onPressed: () {
-                                                  recordViewModel.textController
-                                                      .clear();
-                                                  recordViewModel.completeSpeech
-                                                      .clear();
-                                                },
-                                                icon: const Icon(
-                                                  Icons.close,
-                                                  size: 14,
-                                                ),
-                                              )
-                                            : null,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                vertical: 5, horizontal: 20),
-                                        filled: true,
-                                        fillColor:
-                                            Colors.black.withOpacity(0.05),
-                                        border: const OutlineInputBorder(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(60)),
-                                            borderSide: BorderSide.none)),
-                                  ),
-                                ),
-                              ),
-                            )),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            recordViewModel.textController.value.text
-                                    .trim()
-                                    .isNotEmpty
-                                ? CircleAvatar(
-                                    backgroundColor:
-                                        const Color.fromRGBO(174, 219, 207, 1),
-                                    maxRadius: 30,
-                                    child: IconButton(
-                                      icon: const Icon(
-                                        Icons.send,
-                                        color: Colors.white,
-                                      ),
-                                      onPressed: () async {
-                                        final String userInputContent =
-                                            recordViewModel
-                                                .textController.value.text;
-
-                                        _focusNode.unfocus();
-                                        recordViewModel.textController.clear();
-                                        recordViewModel.completeSpeech.clear();
-
-                                        if (_maxCountRequest <=
-                                                _countOfRequest &&
-                                            userInputContent
-                                                    .trim()
-                                                    .toLowerCase() ==
-                                                "finish conversation") {
-                                          allMessageViewModel.addMessage(
-                                              MessageModel(
-                                                  type: MessageTypes
-                                                      .chatCompleteMessage));
-                                          globalSettings.setIsChatCompleted =
-                                              true;
-                                          return;
-                                        }
-                                        if (userInputContent.isNotEmpty) {
-                                          MessageModel userRequestMessageModel =
-                                              MessageModel(
-                                                  messageContent:
-                                                      userInputContent,
-                                                  type:
-                                                      MessageTypes.userMessage);
-                                          allMessageViewModel.addMessage(
-                                              userRequestMessageModel);
-                                          MessageModel lastBotMessageModel =
-                                              MessageModel(
-                                                  type:
-                                                      MessageTypes.botMessage);
-                                          MessageModel taskCompletedModel =
-                                              MessageModel(
-                                                  id: Random().nextInt(100),
-                                                  type: MessageTypes
-                                                      .taskCompleteMessage);
-                                          allMessageViewModel
-                                              .addMessage(taskCompletedModel);
-                                          allMessageViewModel
-                                              .addMessage(lastBotMessageModel);
-                                          _countOfRequest++;
-
-                                          String taskCompletionResponse = '';
-
-                                          setState(() {});
-                                          List<Future<dynamic>> waitMethods = [
-                                            widget._groqHandleViewModel.sendMessage(
-                                                userInputContent,
-                                                GrogBaseConfigChoice
-                                                    .groqForUserRequestResponse),
-                                            widget._groqHandleViewModel.sendMessage(
-                                                userInputContent,
-                                                GrogBaseConfigChoice
-                                                    .groqForUserMistakesCorrect)
-                                          ];
-                                          if (widget.scenarioType ==
-                                              ScenarioTypes.question) {
-                                            waitMethods.add(widget
-                                                ._groqHandleViewModel
-                                                .sendMessage(
-                                                    userInputContent,
-                                                    GrogBaseConfigChoice
-                                                        .groqForUserCompletedTasks));
-                                          }
-                                          final results =
-                                              await Future.wait(waitMethods);
-                                          // WidgetsBinding.instance
-                                          //     .addPostFrameCallback((_) {
-                                          //   recordViewModel.controllerViewModel
-                                          //       .scrollToBottomOfListView(widget
-                                          //           ._messageListScrollController);
-                                          // });
-                                          final String userRequestResponse =
-                                              results[0];
-                                          final String
-                                              mistakesInRequestResponse =
-                                              results[1];
-
-                                          if (widget.scenarioType !=
-                                              ScenarioTypes.question) {
-                                            taskCompletionResponse = await widget
-                                                ._groqHandleViewModel
-                                                .sendMessage(
-                                                    userRequestResponse,
-                                                    GrogBaseConfigChoice
-                                                        .groqForUserCompletedTasks);
-                                          } else {
-                                            taskCompletionResponse = results[2];
-                                          }
-
-                                          print(taskCompletionResponse);
-
-                                          if (taskCompletionResponse
-                                                  .contains('[correct]') &&
-                                              widget.scenarioType ==
-                                                  ScenarioTypes.charades) {
-                                            _globalChatTime += 10;
-                                            _timerAnimationController.forward(
-                                                from: 0.0);
-                                            _correctGuessAmount++;
-                                            setState(() {});
-                                          }
-
-                                          List<String> taskCompletionList =
-                                              taskCompletionResponse.split('');
-                                          for (var i = 0;
-                                              i < taskCompletionList.length;
-                                              i++) {
-                                            if (taskCompletionList[i] == '[' &&
-                                                int.tryParse(taskCompletionList[
-                                                        i + 1]) !=
-                                                    null &&
-                                                taskCompletionList[i + 2] ==
-                                                    ']') {
-                                              taskCompletionResponse =
-                                                  taskCompletionList[i + 1];
-                                            } else if (int.tryParse(
-                                                        taskCompletionList[
-                                                            i]) !=
-                                                    null &&
-                                                taskCompletionList[i - 1] !=
-                                                    "-" &&
-                                                int.parse(taskCompletionList[
-                                                        i]) >=
-                                                    0 &&
-                                                int.parse(
-                                                        taskCompletionList[i]) <
-                                                    3) {
-                                              taskCompletionResponse =
-                                                  taskCompletionList[i];
-                                            }
-                                          }
-                                          final bool successedTask =
-                                              getTaskCompletionCase(
-                                                  taskCompletionResponse);
-                                          if (successedTask) {
-                                            int indexOfSuccessedTask =
-                                                int.parse(taskCompletionResponse
-                                                    .replaceAll(
-                                                        RegExp(r'[\[\]]'), ''));
-                                            final Map<String, dynamic> element =
-                                                tasksCompletedViewModel
-                                                        .tasksCompletionMapsList[
-                                                    indexOfSuccessedTask];
-
-                                            recordViewModel.controllerViewModel
-                                                .scrollToBottomOfListView(widget
-                                                    ._messageListScrollController);
-
-                                            if (!element['completed']) {
-                                              element['completed'] = true;
-                                              taskCompletedModel
-                                                      .messageContent =
-                                                  tasksCompletedViewModel
-                                                      .completedTasksNumber()
-                                                      .toString();
-
-                                              _taskCompletionIndexes
-                                                  .add(_countOfRequest - 1);
-                                            } else {
-                                              allMessageViewModel.removeMessage(
-                                                  taskCompletedModel);
-                                            }
-                                          }
-                                          if (!successedTask) {
-                                            allMessageViewModel.removeMessage(
-                                                taskCompletedModel);
-                                          }
-                                          setState(() {});
-                                          userRequestMessageModel.addMistakes =
-                                              mistakesInRequestResponse;
-                                          userRequestMessageModel.setIsCorrect =
-                                              mistakesInRequestResponse;
-
-                                          await Future.delayed(Duration.zero);
-                                          if (userRequestResponse
-                                              .trim()
-                                              .isNotEmpty) {
-                                            // final Directory directory =
-                                            //     await getApplicationDocumentsDirectory();
-                                            // final DateTime dateTime = DateTime.now();
-                                            // final String filePath =
-                                            //     '${directory.path}/temp_audio_$dateTime.wav';
-                                            if (_isFirstBotMessageArrived) {
-                                              _allResponseTimeData
-                                                  .add(_responseTime);
-                                              _responseTime = 0;
-                                            }
-                                            lastBotMessageModel.messageContent =
-                                                userRequestResponse;
-
-                                            if (_maxCountRequest <=
-                                                    _countOfRequest &&
-                                                _countOfRequest -
-                                                        _maxCountRequest >=
-                                                    2) {
-                                              Timer(const Duration(seconds: 5),
-                                                  () {
-                                                allMessageViewModel.addMessage(
-                                                    MessageModel(
-                                                        type: MessageTypes
-                                                            .chatCompleteMessage));
-                                                globalSettings
-                                                    .setIsChatCompleted = true;
-                                                _responseSpeedTimer?.cancel();
-                                              });
-                                            }
-
-                                            setState(() {});
-
-                                            if (globalSettings
-                                                .isAutoRecordingStart) {
-                                              recordViewModel.onRecordTap();
-                                            }
-                                            // const String voiceId =
-                                            //     'cgSgspJ2msm6clMCkdW9';
-                                            // final speechResponse = await http.post(
-                                            //     Uri.parse(
-                                            //       'https://api.elevenlabs.io/v1/text-to-speech/$voiceId/stream?output_format=pcm_16000',
-                                            //     ),
-                                            //     headers: {
-                                            //       'Content-Type': 'application/json',
-                                            //       'xi-api-key': XI_API_KEY
-                                            //     },
-                                            //     body: jsonEncode({
-                                            //       "text": userRequestResponse,
-                                            //       "model_id":
-                                            //           "eleven_multilingual_v2",
-                                            //     }));
-
-                                            // Uint8List audioBytes =
-                                            //     speechResponse.bodyBytes;
-                                            // lastBotMessageModel.audioBytes =
-                                            //     audioBytes;
-                                            // widget.playChunks(audioBytes);
-                                            // File currentFile = File(filePath);
-                                            // await currentFile
-                                            //     .writeAsBytes(audioBytes);
-                                            // lastBotMessageModel.file = currentFile;
-                                          }
-                                        }
-                                      },
-                                    ),
-                                  )
-                                : const SizedBox()
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        const Divider(
-                          thickness: 0.2,
-                        ),
-                        SizedBox(
-                          height: 40,
-                          child: Row(
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Column(
+                        children: [
+                          AnimatedGradientText(
+                              text:
+                                  'Say "Finish Conversation" to complete chat and see your results',
+                              isVisible: globalSettings.isChatCompleted == true
+                                  ? false
+                                  : _maxCountRequest <= _countOfRequest),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              CustomChatSmallButton(
-                                buttonText:
-                                    "Tasks ${tasksCompletedViewModel.completedTasksNumber()}/${widget.taskListLength}",
-                                icon: Iconsax.task,
-                                toOpenWidget: TasksSubModal(
-                                  tasksCompletedViewModel:
-                                      tasksCompletedViewModel,
+                              RecordButton(
+                                isChatCompleted: globalSettings.isChatCompleted,
+                                voidCallback: _update,
+                                recordViewModel: recordViewModel,
+                                color: customGreenColor,
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                  child: Container(
+                                alignment: Alignment.bottomCenter,
+                                height: 70,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(60)),
+                                      border: Border.all(
+                                          style: BorderStyle.solid,
+                                          color: Colors.white.withOpacity(0.8)),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color.fromARGB(
+                                                  255, 255, 255, 255)
+                                              .withOpacity(0.8),
+                                          spreadRadius: -8.0,
+                                          blurRadius: 10.0,
+                                          offset: const Offset(0, 2),
+                                        )
+                                      ]),
+                                  child: Scrollbar(
+                                    controller: widget._scrollController,
+                                    thickness: 2,
+                                    child: TextField(
+                                      enabled:
+                                          globalSettings.isChatCompleted == true
+                                              ? globalSettings.isChatCompleted
+                                              : recordViewModel
+                                                  .controllerViewModel
+                                                  .isTextFieldReadOnly,
+                                      scrollController:
+                                          recordViewModel.isRecording
+                                              ? widget._scrollController
+                                              : null,
+                                      maxLines: null,
+                                      minLines: null,
+                                      keyboardType: TextInputType.multiline,
+                                      textAlignVertical:
+                                          TextAlignVertical.center,
+                                      onChanged: (value) {
+                                        recordViewModel.controllerViewModel
+                                            .setTextController = value;
+                                        recordViewModel.completeSpeech.clear();
+                                        recordViewModel.completeSpeech
+                                            .add(value);
+                                      },
+                                      focusNode: _focusNode,
+                                      controller:
+                                          recordViewModel.textController,
+                                      style: GoogleFonts.jost(
+                                          textStyle:
+                                              const TextStyle(fontSize: 12)),
+                                      decoration: InputDecoration(
+                                          suffixIcon: recordViewModel
+                                                  .textController
+                                                  .value
+                                                  .text
+                                                  .isNotEmpty
+                                              ? IconButton(
+                                                  onPressed: () {
+                                                    recordViewModel
+                                                        .textController
+                                                        .clear();
+                                                    recordViewModel
+                                                        .completeSpeech
+                                                        .clear();
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.close,
+                                                    size: 14,
+                                                  ),
+                                                )
+                                              : null,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 5, horizontal: 20),
+                                          filled: true,
+                                          fillColor:
+                                              Colors.black.withOpacity(0.05),
+                                          border: const OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(60)),
+                                              borderSide: BorderSide.none)),
+                                    ),
+                                  ),
                                 ),
+                              )),
+                              const SizedBox(
+                                width: 5,
                               ),
-                              const CustomChatSmallButton(
-                                buttonText: "Translate",
-                                icon: Iconsax.translate,
-                                toOpenWidget: LanguageTranslateModal(),
-                              ),
-                              CustomChatSmallButton(
-                                buttonText: "Hints",
-                                icon: Iconsax.bubble,
-                                toOpenWidget: HintsModal(
-                                  translator: widget._translator,
-                                ),
-                              ),
+                              recordViewModel.textController.value.text
+                                      .trim()
+                                      .isNotEmpty
+                                  ? CircleAvatar(
+                                      backgroundColor: const Color.fromRGBO(
+                                          174, 219, 207, 1),
+                                      maxRadius: 30,
+                                      child: IconButton(
+                                        icon: const Icon(
+                                          Icons.send,
+                                          color: Colors.white,
+                                        ),
+                                        onPressed: () async {
+                                          final String userInputContent =
+                                              recordViewModel
+                                                  .textController.value.text;
+
+                                          _focusNode.unfocus();
+                                          recordViewModel.textController
+                                              .clear();
+                                          recordViewModel.completeSpeech
+                                              .clear();
+
+                                          if (_maxCountRequest <=
+                                                  _countOfRequest &&
+                                              userInputContent
+                                                      .trim()
+                                                      .toLowerCase() ==
+                                                  "finish conversation") {
+                                            allMessageViewModel.addMessage(
+                                                MessageModel(
+                                                    type: MessageTypes
+                                                        .chatCompleteMessage));
+                                            globalSettings.setIsChatCompleted =
+                                                true;
+                                            return;
+                                          }
+                                          if (userInputContent.isNotEmpty) {
+                                            MessageModel
+                                                userRequestMessageModel =
+                                                MessageModel(
+                                                    messageContent:
+                                                        userInputContent,
+                                                    type: MessageTypes
+                                                        .userMessage);
+                                            allMessageViewModel.addMessage(
+                                                userRequestMessageModel);
+                                            MessageModel lastBotMessageModel =
+                                                MessageModel(
+                                                    type: MessageTypes
+                                                        .botMessage);
+                                            MessageModel taskCompletedModel =
+                                                MessageModel(
+                                                    id: Random().nextInt(100),
+                                                    type: MessageTypes
+                                                        .taskCompleteMessage);
+                                            allMessageViewModel
+                                                .addMessage(taskCompletedModel);
+                                            allMessageViewModel.addMessage(
+                                                lastBotMessageModel);
+                                            _countOfRequest++;
+
+                                            String taskCompletionResponse = '';
+
+                                            setState(() {});
+                                            List<Future<dynamic>> waitMethods =
+                                                [
+                                              widget._groqHandleViewModel
+                                                  .sendMessage(
+                                                      userInputContent,
+                                                      GrogBaseConfigChoice
+                                                          .groqForUserRequestResponse),
+                                              widget._groqHandleViewModel
+                                                  .sendMessage(
+                                                      userInputContent,
+                                                      GrogBaseConfigChoice
+                                                          .groqForUserMistakesCorrect)
+                                            ];
+                                            if (widget.scenarioType ==
+                                                ScenarioTypes.question) {
+                                              waitMethods.add(widget
+                                                  ._groqHandleViewModel
+                                                  .sendMessage(
+                                                      userInputContent,
+                                                      GrogBaseConfigChoice
+                                                          .groqForUserCompletedTasks));
+                                            }
+                                            final results =
+                                                await Future.wait(waitMethods);
+                                            // WidgetsBinding.instance
+                                            //     .addPostFrameCallback((_) {
+                                            //   recordViewModel.controllerViewModel
+                                            //       .scrollToBottomOfListView(widget
+                                            //           ._messageListScrollController);
+                                            // });
+                                            final String userRequestResponse =
+                                                results[0];
+                                            final String
+                                                mistakesInRequestResponse =
+                                                results[1];
+
+                                            if (widget.scenarioType !=
+                                                ScenarioTypes.question) {
+                                              taskCompletionResponse = await widget
+                                                  ._groqHandleViewModel
+                                                  .sendMessage(
+                                                      userRequestResponse,
+                                                      GrogBaseConfigChoice
+                                                          .groqForUserCompletedTasks);
+                                            } else {
+                                              taskCompletionResponse =
+                                                  results[2];
+                                            }
+
+                                            print(
+                                                'Task $taskCompletionResponse');
+
+                                            if (taskCompletionResponse
+                                                    .contains('[correct]') &&
+                                                widget.scenarioType ==
+                                                    ScenarioTypes.charades) {
+                                              _globalChatTime += 10;
+                                              _timerAnimationController.forward(
+                                                  from: 0.0);
+                                              _correctGuessAmount++;
+                                              setState(() {});
+                                            }
+                                            if (widget.scenarioType ==
+                                                    ScenarioTypes.question &&
+                                                widget.chatDifficultLevel ==
+                                                    ChatDifficultLevels
+                                                        .advanced) {
+                                              List<String> taskCompletionList =
+                                                  taskCompletionResponse
+                                                      .split('');
+                                              String temp = '';
+
+                                              for (var i = 0;
+                                                  i < taskCompletionList.length;
+                                                  i++) {
+                                                if (int.tryParse(
+                                                        taskCompletionList[
+                                                            i]) !=
+                                                    null) {
+                                                  if (i != 0 &&
+                                                      taskCompletionList[
+                                                              i - 1] ==
+                                                          '-') {
+                                                    temp += taskCompletionList[
+                                                        i - 1];
+                                                    temp +=
+                                                        taskCompletionList[i];
+                                                  } else {
+                                                    temp +=
+                                                        taskCompletionList[i];
+                                                  }
+
+                                                  if (i ==
+                                                          taskCompletionList
+                                                                  .length -
+                                                              1 ||
+                                                      int.tryParse(
+                                                              taskCompletionList[
+                                                                  i + 1]) ==
+                                                          null) {
+                                                    likeScore = int.parse(temp);
+                                                  }
+                                                }
+                                              }
+                                            } else {
+                                              List<String> taskCompletionList =
+                                                  taskCompletionResponse
+                                                      .split('');
+                                              for (var i = 0;
+                                                  i < taskCompletionList.length;
+                                                  i++) {
+                                                if (taskCompletionList[i] ==
+                                                        '[' &&
+                                                    int.tryParse(
+                                                            taskCompletionList[
+                                                                i + 1]) !=
+                                                        null &&
+                                                    taskCompletionList[i + 2] ==
+                                                        ']') {
+                                                  taskCompletionResponse =
+                                                      taskCompletionList[i + 1];
+                                                } else if (int.tryParse(
+                                                            taskCompletionList[
+                                                                i]) !=
+                                                        null &&
+                                                    taskCompletionList[i - 1] !=
+                                                        "-" &&
+                                                    int.parse(
+                                                            taskCompletionList[
+                                                                i]) >=
+                                                        0 &&
+                                                    int.parse(
+                                                            taskCompletionList[
+                                                                i]) <
+                                                        3) {
+                                                  taskCompletionResponse =
+                                                      taskCompletionList[i];
+                                                }
+                                              }
+                                              final bool successedTask =
+                                                  getTaskCompletionCase(
+                                                      taskCompletionResponse);
+                                              if (successedTask) {
+                                                int indexOfSuccessedTask =
+                                                    int.parse(
+                                                        taskCompletionResponse
+                                                            .replaceAll(
+                                                                RegExp(
+                                                                    r'[\[\]]'),
+                                                                ''));
+                                                if (widget.scenarioType ==
+                                                    ScenarioTypes.question) {
+                                                  tasksCompletedViewModel
+                                                      .toggleProgress();
+                                                }
+                                                final Map<String, dynamic>
+                                                    element =
+                                                    tasksCompletedViewModel
+                                                            .tasksCompletionMapsList[
+                                                        indexOfSuccessedTask];
+
+                                                recordViewModel
+                                                    .controllerViewModel
+                                                    .scrollToBottomOfListView(widget
+                                                        ._messageListScrollController);
+
+                                                if (!element['completed']) {
+                                                  element['completed'] = true;
+                                                  taskCompletedModel
+                                                          .messageContent =
+                                                      tasksCompletedViewModel
+                                                          .completedTasksNumber()
+                                                          .toString();
+
+                                                  _taskCompletionIndexes
+                                                      .add(_countOfRequest - 1);
+                                                } else {
+                                                  allMessageViewModel
+                                                      .removeMessage(
+                                                          taskCompletedModel);
+                                                }
+                                              }
+                                              if (!successedTask) {
+                                                allMessageViewModel
+                                                    .removeMessage(
+                                                        taskCompletedModel);
+                                              }
+                                            }
+                                            setState(() {});
+                                            userRequestMessageModel
+                                                    .addMistakes =
+                                                mistakesInRequestResponse;
+                                            userRequestMessageModel
+                                                    .setIsCorrect =
+                                                mistakesInRequestResponse;
+
+                                            await Future.delayed(Duration.zero);
+                                            if (userRequestResponse
+                                                .trim()
+                                                .isNotEmpty) {
+                                              // final Directory directory =
+                                              //     await getApplicationDocumentsDirectory();
+                                              // final DateTime dateTime = DateTime.now();
+                                              // final String filePath =
+                                              //     '${directory.path}/temp_audio_$dateTime.wav';
+                                              if (_isFirstBotMessageArrived) {
+                                                _allResponseTimeData
+                                                    .add(_responseTime);
+                                                _responseTime = 0;
+                                              }
+                                              lastBotMessageModel
+                                                      .messageContent =
+                                                  userRequestResponse;
+
+                                              if (_maxCountRequest <=
+                                                      _countOfRequest &&
+                                                  _countOfRequest -
+                                                          _maxCountRequest >=
+                                                      2) {
+                                                Timer(
+                                                    const Duration(seconds: 5),
+                                                    () {
+                                                  allMessageViewModel
+                                                      .addMessage(MessageModel(
+                                                          type: MessageTypes
+                                                              .chatCompleteMessage));
+                                                  globalSettings
+                                                          .setIsChatCompleted =
+                                                      true;
+                                                  _responseSpeedTimer?.cancel();
+                                                });
+                                              }
+
+                                              setState(() {});
+
+                                              if (globalSettings
+                                                  .isAutoRecordingStart) {
+                                                recordViewModel.onRecordTap();
+                                              }
+                                              // const String voiceId =
+                                              //     'cgSgspJ2msm6clMCkdW9';
+                                              // final speechResponse = await http.post(
+                                              //     Uri.parse(
+                                              //       'https://api.elevenlabs.io/v1/text-to-speech/$voiceId/stream?output_format=pcm_16000',
+                                              //     ),
+                                              //     headers: {
+                                              //       'Content-Type': 'application/json',
+                                              //       'xi-api-key': xiApiKey
+                                              //     },
+                                              //     body: jsonEncode({
+                                              //       "text": userRequestResponse,
+                                              //       "model_id":
+                                              //           "eleven_multilingual_v2",
+                                              //     }));
+
+                                              // Uint8List audioBytes =
+                                              //     speechResponse.bodyBytes;
+                                              // lastBotMessageModel.audioBytes =
+                                              //     audioBytes;
+                                              // widget.playChunks(audioBytes);
+                                              // File currentFile = File(filePath);
+                                              // await currentFile
+                                              //     .writeAsBytes(audioBytes);
+                                              // lastBotMessageModel.file = currentFile;
+                                            }
+                                          }
+                                        },
+                                      ),
+                                    )
+                                  : const SizedBox()
                             ],
                           ),
-                        )
-                      ],
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          const Divider(
+                            thickness: 0.2,
+                          ),
+                          SizedBox(
+                            height: 40,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                CustomChatSmallButton(
+                                  buttonText:
+                                      "Tasks ${tasksCompletedViewModel.completedTasksNumber()}/${widget.taskListLength}",
+                                  icon: Iconsax.task,
+                                  toOpenWidget:
+                                      Consumer<TasksCompletedViewModel>(
+                                    builder: (_, tasksCompletedViewModel, __) =>
+                                        TasksSubModal(
+                                      tasksCompletedViewModel:
+                                          tasksCompletedViewModel,
+                                    ),
+                                  ),
+                                ),
+                                const CustomChatSmallButton(
+                                  buttonText: "Translate",
+                                  icon: Iconsax.translate,
+                                  toOpenWidget: LanguageTranslateModal(),
+                                ),
+                                CustomChatSmallButton(
+                                  buttonText: "Hints",
+                                  icon: Iconsax.bubble,
+                                  toOpenWidget: HintsModal(
+                                    translator: widget._translator,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            AddedTimeWidget(
-              isVisible: _isAddedNumberIsVisible,
-              controller: _timerAnimationController,
-            )
-          ],
+              AddedTimeWidget(
+                isVisible: _isAddedNumberIsVisible,
+                controller: _timerAnimationController,
+              ),
+              Center(
+                child: AnimatedTextDisplay(
+                  scenarioType: widget.scenarioType,
+                  controller: _chatCompletionAnimationController,
+                  isCompleted: tasksCompletedViewModel.isChatCompletedSuccess,
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -1110,6 +1280,348 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
   }
 }
 
+class AnimatedTextDisplay extends StatefulWidget {
+  final bool isCompleted;
+  final ScenarioTypes scenarioType;
+  final AnimationController controller;
+
+  const AnimatedTextDisplay(
+      {super.key,
+      required this.isCompleted,
+      required this.controller,
+      this.scenarioType = ScenarioTypes.question});
+
+  @override
+  State<AnimatedTextDisplay> createState() => _AnimatedTextDisplayState();
+}
+
+class _AnimatedTextDisplayState extends State<AnimatedTextDisplay>
+    with SingleTickerProviderStateMixin {
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animation = Tween<double>(begin: 1, end: 0).animate(widget.controller);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.translate(
+      offset: const Offset(0, -100),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          AnimatedSlide(
+            offset: Offset(_animation.value, 0),
+            duration: const Duration(seconds: 1),
+            curve: Curves.easeOut,
+            child: AnimatedOpacity(
+              opacity: widget.controller.value,
+              duration: const Duration(seconds: 1),
+              child: GradientText(
+                colors: widget.scenarioType == ScenarioTypes.charades
+                    ? [Colors.yellowAccent, Colors.yellow]
+                    : widget.isCompleted
+                        ? [customGreenColor, Colors.green]
+                        : [
+                            const Color.fromARGB(255, 247, 110, 100),
+                            Colors.red
+                          ],
+                Text(
+                  'Card'.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    // color: widget.scenarioType == ScenarioTypes.charades ? Colors. widget.isCompleted ? Colors.green : Colors.red,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 5.0,
+                        color: Colors.black87,
+                        offset: Offset(2.0, 2.0),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          AnimatedSlide(
+            offset: Offset(-_animation.value, 0),
+            duration: const Duration(seconds: 1),
+            curve: Curves.easeOut,
+            child: AnimatedOpacity(
+              opacity: widget.controller.value,
+              duration: const Duration(seconds: 1),
+              child: GradientText(
+                colors: widget.scenarioType == ScenarioTypes.charades
+                    ? [Colors.yellowAccent, Colors.yellow]
+                    : widget.isCompleted
+                        ? [Colors.green, customGreenColor]
+                        : [
+                            const Color.fromARGB(255, 247, 110, 100),
+                            Colors.red
+                          ],
+                Text(
+                  widget.scenarioType == ScenarioTypes.charades
+                      ? "Over".toUpperCase()
+                      : widget.isCompleted
+                          ? "Completed!".toUpperCase()
+                          : "Failed".toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    // color: widget.isCompleted ? Colors.green : Colors.red,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 5.0,
+                        color: Colors.black87,
+                        offset: Offset(2.0, 2.0),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TaskCompletenessBar extends StatefulWidget {
+  final VoidCallback voidCallback;
+  final bool isCompleted;
+  final int completedTasks;
+  final int allTasks;
+  final ScenarioTypes scenarioType;
+  final double progress;
+  final int correctGuess;
+  final int likeScore;
+  final AnimationController controller;
+  final ChatDifficultLevels chatDifficultLevel;
+  const TaskCompletenessBar({
+    this.scenarioType = ScenarioTypes.question,
+    this.correctGuess = 0,
+    required this.chatDifficultLevel,
+    required this.likeScore,
+    required this.controller,
+    required this.voidCallback,
+    required this.isCompleted,
+    required this.allTasks,
+    this.completedTasks = 0,
+    required this.progress,
+    super.key,
+  });
+
+  @override
+  State<TaskCompletenessBar> createState() => _TaskCompletenessBarState();
+}
+
+class _TaskCompletenessBarState extends State<TaskCompletenessBar> {
+  late Animation<double> _translateAnimation;
+
+  @override
+  void initState() {
+    _translateAnimation =
+        Tween<double>(begin: 0, end: 0).animate(widget.controller);
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant TaskCompletenessBar oldWidget) {
+    if (oldWidget.likeScore != widget.likeScore) {
+      _translateAnimation =
+          Tween<double>(begin: 0, end: widget.likeScore.toDouble())
+              .animate(widget.controller);
+      widget.controller.forward();
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        widget.chatDifficultLevel == ChatDifficultLevels.advanced
+            ? Container(
+                width: MediaQuery.of(context).size.width * 0.6,
+                height: 30,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                      colors: [Colors.redAccent, Colors.greenAccent]),
+                  border:
+                      Border.all(style: BorderStyle.solid, color: Colors.white),
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  color: Colors.black.withOpacity(0.2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color.fromARGB(255, 255, 255, 255)
+                          .withOpacity(0.8),
+                      spreadRadius: -8.0,
+                      blurRadius: 10.0,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                              height: double.infinity,
+                              width: 1,
+                              color: Colors.white),
+                          Container(
+                              height: double.infinity,
+                              width: 1,
+                              color: Colors.white),
+                        ],
+                      ),
+                    ),
+                    Align(
+                        alignment: Alignment.center,
+                        child: AnimatedBuilder(
+                            animation: widget.controller,
+                            builder: (context, child) {
+                              return Transform.translate(
+                                offset: Offset(_translateAnimation.value, 0),
+                                child: const Icon(
+                                  Iconsax.arrow_up,
+                                  size: 20,
+                                ),
+                              );
+                            }))
+                  ],
+                ),
+              )
+            : ClipPath(
+                clipper: CustomClippedRectangle(),
+                child: widget.isCompleted
+                    ? GestureDetector(
+                        onTap: () {
+                          widget.voidCallback();
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          height: 30,
+                          decoration: const BoxDecoration(
+                            color: customGreenColor,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.amber,
+                                spreadRadius: 6,
+                                blurRadius: 2,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: GradientAnimationText(
+                            duration: const Duration(seconds: 1),
+                            text: Text(
+                              'Complete Chat'.toUpperCase(),
+                              style: GoogleFonts.jost(
+                                  fontSize: 15, letterSpacing: 2),
+                            ),
+                            colors: const [Colors.white, Colors.amberAccent],
+                          ),
+                        ),
+                      )
+                    : Stack(
+                        children: [
+                          // Background layer for progress bar (empty state)
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.05),
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      const Color.fromARGB(255, 255, 255, 255)
+                                          .withOpacity(0.8),
+                                  spreadRadius: -8.0,
+                                  blurRadius: 10.0,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          AnimatedContainer(
+                            duration: const Duration(seconds: 1),
+                            width: MediaQuery.of(context).size.width *
+                                0.5 *
+                                widget.progress,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: customGreenColor.withOpacity(0.8),
+                            ),
+                          ),
+
+                          Container(
+                            alignment: Alignment.center,
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            height: 30,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  widget.scenarioType == ScenarioTypes.question
+                                      ? Iconsax.task
+                                      : FontAwesomeIcons.lightbulb,
+                                  size: 14,
+                                  color: lightGreyTextColor,
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  widget.scenarioType == ScenarioTypes.question
+                                      ? 'Tasks ${widget.completedTasks}/${widget.allTasks}'
+                                      : "Correct guesses: ${widget.correctGuess}",
+                                  style: GoogleFonts.jost(
+                                      fontSize: 14, color: lightGreyTextColor),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+      ],
+    );
+  }
+}
+
+class CustomClippedRectangle extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final Path path = Path()
+      ..lineTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width - 25, size.height)
+      ..lineTo(25, size.height)
+      ..close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper oldClipper) {
+    return false;
+  }
+}
+
 class AddedTimeWidget extends StatefulWidget {
   const AddedTimeWidget({
     required this.controller,
@@ -1162,8 +1674,12 @@ class _AddedTimeWidgetState extends State<AddedTimeWidget> {
                           child: Text(
                             '+10',
                             style: GoogleFonts.jost(
-                                textStyle: const TextStyle(
-                                    color: Colors.green, fontSize: 30)),
+                                textStyle: const TextStyle(shadows: [
+                              Shadow(
+                                  color: Colors.black54,
+                                  blurRadius: 5.0,
+                                  offset: Offset(0, 2))
+                            ], color: Colors.green, fontSize: 30)),
                           ),
                         ),
                       ),
@@ -1220,20 +1736,6 @@ class _AppBarTimerState extends State<AppBarTimer> {
             CurvedAnimation(parent: widget.controller, curve: Curves.linear));
   }
 
-  String _convertIntegerToTime() {
-    if (_remainingTime == 0) {
-      return "00:00";
-    }
-    int currentValue = _animationCount.value ?? _remainingTime;
-    int minutes = currentValue ~/ 60;
-    int seconds = currentValue % 60;
-
-    String minuteLeft = minutes.toString().padLeft(2, '0');
-    String secondsLeft = seconds.toString().padLeft(2, '0');
-
-    return "$minuteLeft:$secondsLeft";
-  }
-
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -1242,7 +1744,7 @@ class _AppBarTimerState extends State<AppBarTimer> {
         return Transform.scale(
           scale: _animationScale.value,
           child: Text(
-            _convertIntegerToTime(),
+            convertIntegerToTime(_animationCount.value),
             style: GoogleFonts.jost(
               textStyle: TextStyle(
                   color: (_remainingTime >= 60)
@@ -1425,8 +1927,6 @@ class _ChatCompleteMessageState extends State<ChatCompleteMessage>
                                     .calculateEngagementScore(),
                                 tasksCompletionScore: widget.scoreModel
                                     .calculateTaskCompletionRatio(),
-                                overallScore:
-                                    widget.scoreModel.calculateOverallScore(),
                               ),
                             )
                           ],
@@ -2671,38 +3171,297 @@ class TasksSubModal extends StatelessWidget {
           itemBuilder: (context, i) => Column(
                 children: [
                   ListTile(
-                      leading: CircleAvatar(
-                        radius: 16,
-                        backgroundColor: tasksCompletedViewModel
-                                    .tasksCompletionMapsList[i]["completed"] ==
-                                true
-                            ? customGreenColor
-                            : lightGreyTextColor,
-                        child: const Icon(
-                          FontAwesomeIcons.check,
-                          size: 18,
-                          color: Colors.white,
-                        ),
+                    leading: CircleAvatar(
+                      radius: 16,
+                      backgroundColor: tasksCompletedViewModel
+                                  .tasksCompletionMapsList[i]["completed"] ==
+                              true
+                          ? customGreenColor
+                          : lightGreyTextColor,
+                      child: const Icon(
+                        FontAwesomeIcons.check,
+                        size: 18,
+                        color: Colors.white,
                       ),
-                      title: RichText(
-                          text: TextSpan(children: [
-                        TextSpan(
-                            text: "Ask question: ",
-                            style: GoogleFonts.jost(
-                                textStyle: const TextStyle(
-                                    fontSize: 14,
-                                    color: primaryPurpleColor,
-                                    fontWeight: FontWeight.w600))),
-                        TextSpan(
-                            text: tasksCompletedViewModel
-                                .tasksCompletionMapsList[i]["visibleTask"],
-                            style: GoogleFonts.jost(
-                                textStyle: const TextStyle(
-                                    fontSize: 14, color: Colors.black)))
-                      ]))),
+                    ),
+                    title: RichText(
+                        text: TextSpan(children: [
+                      TextSpan(
+                          text: (tasksCompletedViewModel
+                                          .tasksCompletionMapsList[i]["type"]
+                                      as QuestionScenarioTypeOptions) ==
+                                  QuestionScenarioTypeOptions.inquiry
+                              ? "Ask question: "
+                              : "Type answer: ",
+                          style: GoogleFonts.jost(
+                              textStyle: const TextStyle(
+                                  fontSize: 14,
+                                  color: primaryPurpleColor,
+                                  fontWeight: FontWeight.w600))),
+                      TextSpan(
+                          text: tasksCompletedViewModel
+                              .tasksCompletionMapsList[i]["visibleTask"],
+                          style: GoogleFonts.jost(
+                              textStyle: const TextStyle(
+                                  fontSize: 14, color: Colors.black)))
+                    ])),
+                    trailing: (tasksCompletedViewModel
+                                        .tasksCompletionMapsList[i]["type"]
+                                    as QuestionScenarioTypeOptions) ==
+                                QuestionScenarioTypeOptions.response &&
+                            !tasksCompletedViewModel.tasksCompletionMapsList[i]
+                                ["completed"]
+                        ? GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) => Dialog(
+                                        child: TaskResponseTypeCompleteWindow(
+                                          index: i,
+                                          voidCallback: (index) {
+                                            tasksCompletedViewModel
+                                                .toggleProgress();
+                                            tasksCompletedViewModel
+                                                .completeManuallyTask(index);
+                                          },
+                                          question: tasksCompletedViewModel
+                                                  .tasksCompletionMapsList[i]
+                                              ["visibleTask"],
+                                          answer: tasksCompletedViewModel
+                                                  .tasksCompletionMapsList[i]
+                                              ["answer"],
+                                        ),
+                                      ));
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 8),
+                              decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10)),
+                                  color: semiGreyColor,
+                                  border: Border.all(
+                                      style: BorderStyle.solid,
+                                      color: Colors.black12)),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Type'.toUpperCase(),
+                                    style: GoogleFonts.jost(
+                                        color: lightGreyTextColor,
+                                        letterSpacing: 2),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  const Icon(
+                                    Icons.keyboard_double_arrow_right,
+                                    color: lightGreyTextColor,
+                                  )
+                                ],
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
                   const Divider()
                 ],
               )),
+    );
+  }
+}
+
+class TaskResponseTypeCompleteWindow extends StatefulWidget {
+  const TaskResponseTypeCompleteWindow({
+    required this.question,
+    required this.answer,
+    required this.voidCallback,
+    required this.index,
+    super.key,
+  });
+  final String question;
+  final int index;
+  final String answer;
+  final Function(int) voidCallback;
+
+  @override
+  State<TaskResponseTypeCompleteWindow> createState() =>
+      _TaskResponseTypeCompleteWindowState();
+}
+
+class _TaskResponseTypeCompleteWindowState
+    extends State<TaskResponseTypeCompleteWindow>
+    with SingleTickerProviderStateMixin {
+  late List<TextEditingController> _textEditingControllersList;
+  late List<FocusNode> _focusNodesList;
+  late AnimationController _animationController;
+  bool _isAnswerCorrect = false;
+
+  @override
+  void initState() {
+    _animationController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 2))
+          ..addListener(() => setState(() {}));
+    _textEditingControllersList = List.generate(
+        widget.answer.split('').length, (int index) => TextEditingController());
+    _focusNodesList = List.generate(
+        widget.answer.split('').length, (int index) => FocusNode());
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20.0),
+            decoration: const BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.all(Radius.circular(20))),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  widget.question,
+                  style: GoogleFonts.jost(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w200,
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                      widget.answer.split('').length,
+                      (int index) => Container(
+                            width: 30,
+                            height: 40,
+                            margin: EdgeInsets.only(left: index != 0 ? 10 : 0),
+                            child: TextField(
+                              onChanged: (value) {
+                                if (value.isNotEmpty &&
+                                    index !=
+                                        widget.answer.split('').length - 1) {
+                                  FocusScope.of(context)
+                                      .requestFocus(_focusNodesList[index + 1]);
+                                }
+                              },
+                              controller: _textEditingControllersList[index],
+                              focusNode: _focusNodesList[index],
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(1)
+                              ],
+                              scrollPadding: const EdgeInsets.all(0),
+                              decoration: InputDecoration(
+                                  contentPadding:
+                                      const EdgeInsets.only(left: 10),
+                                  filled: true,
+                                  fillColor:
+                                      lightGreyTextColor.withOpacity(0.3),
+                                  enabledBorder: const OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          width: 1,
+                                          style: BorderStyle.solid,
+                                          color: Colors.white))),
+                            ),
+                          )),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    final String typedAnswer = _textEditingControllersList
+                        .map((element) => element.text)
+                        .toList()
+                        .join('');
+                    if (typedAnswer == widget.answer) {
+                      _isAnswerCorrect = true;
+                      _animationController.forward().whenComplete(() {
+                        Future.delayed(const Duration(seconds: 1), () {
+                          widget.voidCallback(widget.index);
+                          Navigator.of(context).pop();
+                          _animationController.reset();
+                        });
+                      });
+                    } else {
+                      _animationController
+                          .forward()
+                          .whenComplete(() => _animationController.reset());
+                    }
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    decoration: BoxDecoration(
+                        color: customButtonColor,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
+                        border: Border.all(
+                            style: BorderStyle.solid, color: Colors.black12)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'TRY',
+                          style: GoogleFonts.jost(
+                              color: lightGreyTextColor, letterSpacing: 4),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        const Icon(
+                          Icons.done_outline,
+                          color: lightGreyTextColor,
+                          size: 16,
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          Positioned(
+              top: -2,
+              right: -2,
+              child: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )),
+          Visibility(
+            visible: _animationController.value == 0 ? false : true,
+            child: Positioned.fill(
+              child: Center(
+                child: Lottie.asset(
+                    _isAnswerCorrect
+                        ? 'assets/animations/success.json'
+                        : 'assets/animations/failure.json',
+                    width: 150,
+                    repeat: false,
+                    controller: _animationController),
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }

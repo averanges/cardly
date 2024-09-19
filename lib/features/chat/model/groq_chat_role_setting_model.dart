@@ -3,9 +3,22 @@ import 'package:sound/features/chat/model/groq_base_config.dart';
 import 'package:sound/utils/transform_list.dart';
 
 extension ChatRoleExtenstion on GrogBaseConfigChoice {
-  String _groqForUserCompletedTaskString(
-      String tasksString, ScenarioTypes scenarioType) {
-    if (scenarioType == ScenarioTypes.question) {
+  String _groqForUserCompletedTaskString(String tasksString,
+      ScenarioTypes scenarioType, ChatDifficultLevels level) {
+    if (scenarioType == ScenarioTypes.question &&
+        level == ChatDifficultLevels.advanced) {
+      return '''
+You are an AI assistant focused on evaluation user's message. Score the user based on these criteria:
+
+1) Tone (formal or informal): +10 for formal, -5 for too casual.
+2) Words used (professional or colloquial): +10 for professional, -5 for overly informal.
+3) Interaction quality (respect or rudeness): +15 for respectful, -15 for rude.
+4) Quality of answers (clarity, relevance, detail): +20 for clear and relevant, -20 for vague or irrelevant.
+
+Sum the score. Return only overall number. Do not include in response letters, only number. Always keep your response concise and directly relevant to the context.
+''';
+    } else if (scenarioType == ScenarioTypes.question &&
+        level != ChatDifficultLevels.advanced) {
       return "You are an AI assistant focused on analyzing the user's request message. "
           "If the user's request matches or closely relates to one of the following tasks: $tasksString, "
           "then return the number corresponding to the task. Example [0]. If no task matches or is related, return [-1]. Always keep your response concise and directly relevant to the context.";
@@ -16,8 +29,8 @@ extension ChatRoleExtenstion on GrogBaseConfigChoice {
     }
   }
 
-  String chatRole(
-      String? tasksString, String aiRole, ScenarioTypes scenarioType) {
+  String chatRole(String? tasksString, String aiRole,
+      ScenarioTypes scenarioType, ChatDifficultLevels level) {
     switch (this) {
       case GrogBaseConfigChoice.groqForUserRequestResponse:
         if (aiRole.isNotEmpty) {
@@ -49,7 +62,8 @@ extension ChatRoleExtenstion on GrogBaseConfigChoice {
   Always keep your response concise and directly relevant to the context.""";
       case GrogBaseConfigChoice.groqForUserCompletedTasks:
         if (tasksString != null && tasksString.isNotEmpty) {
-          return _groqForUserCompletedTaskString(tasksString, scenarioType);
+          return _groqForUserCompletedTaskString(
+              tasksString, scenarioType, level);
         } else {
           return "No tasks provided for completion analysis.";
         }
@@ -65,6 +79,7 @@ class GroqChatRoleSettingModel {
   String? tasksString;
   final String aiRole;
   final ScenarioTypes scenarioType;
+  final ChatDifficultLevels level;
   GroqChat? _chat;
 
   int? groqOutputChoices;
@@ -72,6 +87,7 @@ class GroqChatRoleSettingModel {
   GroqChatRoleSettingModel(
       {required this.groq,
       required this.groqConfigChoice,
+      required this.level,
       required this.scenarioType,
       this.tasksString,
       required this.aiRole}) {
@@ -88,7 +104,7 @@ class GroqChatRoleSettingModel {
       String? tasksString, String aiRole, ScenarioTypes scenarioType) async {
     try {
       await _chat!.sendMessage(
-          groqConfigChoice.chatRole(tasksString, aiRole, scenarioType),
+          groqConfigChoice.chatRole(tasksString, aiRole, scenarioType, level),
           role: GroqMessageRole.system);
     } catch (e) {
       print(e.toString());

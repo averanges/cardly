@@ -156,3 +156,32 @@
 //         });
 //   }
 // }
+
+import 'package:flutter/material.dart';
+import 'package:sound/pages/main_screen.dart';
+
+class TestWidget extends StatefulWidget {
+  const TestWidget({super.key});
+
+  @override
+  State<TestWidget> createState() => _TestWidgetState();
+}
+
+class _TestWidgetState extends State<TestWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        child: Center(
+          child: ClipPath(
+              clipper: CustomCardDetailsClipper(),
+              child: Container(
+                color: Colors.black,
+                width: 400,
+                height: 400,
+              )),
+        ),
+      ),
+    );
+  }
+}

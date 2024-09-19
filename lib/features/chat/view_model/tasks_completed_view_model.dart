@@ -8,23 +8,47 @@ class TasksCompletedViewModel extends ChangeNotifier {
           .add(TaskSingleModel(singleTask: tasksList[i], taskIndex: i).toMap());
     }
   }
-  final List<Map<String, String>> tasksList;
+  double _progress = 0.0;
+  bool _isChatCompletedSuccess = false;
+
+  final List<Map<String, dynamic>> tasksList;
   final List<Map<String, dynamic>> _tasksCompletionMapsList = [];
   final Map<int, bool> _animationCompletedMap = {};
+
+  double get progress => _progress;
+  bool get isChatCompletedSuccess => _isChatCompletedSuccess;
 
   Map<int, bool> get animationCompletedMap => _animationCompletedMap;
   List<Map<String, dynamic>> get tasksCompletionMapsList =>
       _tasksCompletionMapsList;
 
+  set isChatCompletedSuccess(bool value) {
+    _isChatCompletedSuccess = value;
+    notifyListeners();
+  }
+
   String tasksToString() {
     String result = _tasksCompletionMapsList.fold("", (previousValue, element) {
       final idx = element["index"];
       final task = element["hiddenTask"];
-      print(task);
       return "$previousValue$idx) $task ";
     });
 
     return result;
+  }
+
+  void toggleProgress() {
+    final double progressStep = 1 / tasksCompletionMapsList.length + 0.01;
+    _progress += progressStep;
+    if (progress > 1) {
+      _isChatCompletedSuccess = true;
+    }
+    notifyListeners();
+  }
+
+  void completeManuallyTask(int index) {
+    _tasksCompletionMapsList[index]['completed'] = true;
+    notifyListeners();
   }
 
   int completedTasksNumber() {

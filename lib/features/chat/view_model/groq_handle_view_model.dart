@@ -9,16 +9,19 @@ class GroqHandleViewModel extends ChangeNotifier {
   void initializeGroqChats(
       {String? tasksString,
       required String aiRole,
+      required ChatDifficultLevels level,
       required ScenarioTypes scenarioType}) {
     for (var groqChoice in GrogBaseConfigChoice.values) {
       final groqConfig =
           groqChoice == GrogBaseConfigChoice.groqForUserCompletedTasks
               ? GroqBaseConfig(
                   scenarioType: scenarioType,
+                  level: level,
                   aiRole: aiRole,
                   groqConfigChoice: groqChoice,
                   tasksString: tasksString)
               : GroqBaseConfig(
+                  level: level,
                   groqConfigChoice: groqChoice,
                   aiRole: aiRole,
                   scenarioType: scenarioType);

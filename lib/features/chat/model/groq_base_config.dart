@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:groq_sdk/groq_sdk.dart';
 import 'package:sound/features/chat/model/groq_chat_role_setting_model.dart';
 import 'package:sound/utils/transform_list.dart';
@@ -13,13 +14,13 @@ extension GroqBaseConfigChoiceExtension on GrogBaseConfigChoice {
   String get api {
     switch (this) {
       case GrogBaseConfigChoice.groqForUserRequestResponse:
-        return "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";
+        return dotenv.env['GROQ_API_KEY1']!;
       case GrogBaseConfigChoice.groqForUserMistakesCorrect:
-        return "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";
+        return dotenv.env['GROQ_API_KEY2']!;
       case GrogBaseConfigChoice.groqForUserRequestHints:
-        return "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";
+        return dotenv.env['GROQ_API_KEY3']!;
       case GrogBaseConfigChoice.groqForUserCompletedTasks:
-        return "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";
+        return dotenv.env['GROQ_API_KEY4']!;
     }
   }
 }
@@ -29,11 +30,13 @@ class GroqBaseConfig {
   String? tasksString;
   final String aiRole;
   final ScenarioTypes scenarioType;
+  final ChatDifficultLevels level;
   Groq? _groq;
 
   GroqBaseConfig(
       {required this.groqConfigChoice,
       required this.scenarioType,
+      required this.level,
       this.tasksString,
       required this.aiRole}) {
     _groq = Groq(groqConfigChoice.api);
@@ -43,6 +46,7 @@ class GroqBaseConfig {
     _groq ??= Groq(groqConfigChoice.api);
     if (groqConfigChoice == GrogBaseConfigChoice.groqForUserCompletedTasks) {
       return GroqChatRoleSettingModel(
+          level: level,
           scenarioType: scenarioType,
           groq: _groq!,
           groqConfigChoice: groqConfigChoice,
@@ -50,6 +54,7 @@ class GroqBaseConfig {
           tasksString: tasksString);
     } else {
       return GroqChatRoleSettingModel(
+          level: level,
           aiRole: aiRole,
           groq: _groq!,
           groqConfigChoice: groqConfigChoice,

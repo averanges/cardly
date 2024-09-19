@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:sound/pages/main_screen.dart';
+import 'package:sound/pages/side_settings_menu.dart';
 import 'package:sound/utils/colors.dart';
-import 'package:sound/utils/side_settings_menu.dart';
 
 class EntryPoint extends StatefulWidget {
   const EntryPoint({super.key});
@@ -57,49 +57,52 @@ class _EntryPointState extends State<EntryPoint>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor2,
-      body: Stack(
-        children: [
-          AnimatedPositioned(
-            width: 288,
-            height: MediaQuery.of(context).size.height,
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.fastOutSlowIn,
-            left: _isSideBarOpen ? 0 : -288,
-            top: 0,
-            child: SideBar(
-              toggleSideMenu: _toggleSideMenu,
+      body: PopScope(
+        canPop: false,
+        child: Stack(
+          children: [
+            AnimatedPositioned(
+              width: 288,
+              height: MediaQuery.of(context).size.height,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.fastOutSlowIn,
+              left: _isSideBarOpen ? 0 : -288,
+              top: 0,
+              child: SideBar(
+                toggleSideMenu: _toggleSideMenu,
+              ),
             ),
-          ),
-          GestureDetector(
-            onTap: () {
-              if (_isSideBarOpen) {
-                _toggleSideMenu();
-              }
-            },
-            child: Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.001)
-                ..rotateY(
-                    1 * animation.value - 30 * (animation.value) * pi / 180),
-              child: Transform.translate(
-                offset: Offset(animation.value * 265, 0),
-                child: Transform.scale(
-                  scale: scalAnimation.value,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(24 * _animationController.value),
-                    ),
-                    child: MainScreen(
-                      toggleSideMenu: _toggleSideMenu,
-                      isSideMenuOpened: _isSideBarOpen,
+            GestureDetector(
+              onTap: () {
+                if (_isSideBarOpen) {
+                  _toggleSideMenu();
+                }
+              },
+              child: Transform(
+                alignment: Alignment.center,
+                transform: Matrix4.identity()
+                  ..setEntry(3, 2, 0.001)
+                  ..rotateY(
+                      1 * animation.value - 30 * (animation.value) * pi / 180),
+                child: Transform.translate(
+                  offset: Offset(animation.value * 265, 0),
+                  child: Transform.scale(
+                    scale: scalAnimation.value,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(24 * _animationController.value),
+                      ),
+                      child: MainScreen(
+                        toggleSideMenu: _toggleSideMenu,
+                        isSideMenuOpened: _isSideBarOpen,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

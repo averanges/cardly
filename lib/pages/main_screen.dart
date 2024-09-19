@@ -2,12 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
+import 'package:sound/features/chat/view_model/auth_view_model.dart';
 import 'package:sound/features/chat/view_model/main_screen_view_model.dart';
 import 'package:sound/pages/template_gallery/ui/widgets/animated_gradient_text.dart';
 import 'package:sound/pages/template_gallery/ui/widgets/cards.dart';
 import 'package:sound/pages/template_gallery/ui/widgets/perspective_list_view.dart';
 import 'package:sound/utils/colors.dart';
+import 'package:sound/utils/convert_string_to_time.dart';
 import 'package:sound/utils/transform_list.dart';
 
 class MainScreen extends StatefulWidget {
@@ -149,6 +152,7 @@ class _MainScreenCardListState extends State<MainScreenCardList>
 
   @override
   Widget build(BuildContext context) {
+    AuthViewModel authViewModel = Provider.of<AuthViewModel>(context);
     return AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
@@ -182,100 +186,101 @@ class _MainScreenCardListState extends State<MainScreenCardList>
                               child: IconButton(
                                 icon: const Icon(Icons.sort),
                                 onPressed: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) => Dialog(
-                                            child: SizedBox(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.7,
-                                              child: Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Text(
-                                                          'Filter',
-                                                          style: GoogleFonts.jost(
-                                                              textStyle: const TextStyle(
-                                                                  fontSize: 20,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold)),
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 20,
-                                                        ),
-                                                        Text('Difficulty Level',
-                                                            style: GoogleFonts.jost(
-                                                                textStyle:
-                                                                    const TextStyle(
-                                                                        fontSize:
-                                                                            16,
-                                                                        color:
-                                                                            lightGreyTextColor))),
-                                                        const SizedBox(
-                                                          height: 10,
-                                                        ),
-                                                        ConstrainedBox(
-                                                          constraints:
-                                                              const BoxConstraints(
-                                                                  maxHeight:
-                                                                      30),
-                                                          child:
-                                                              ListView.builder(
-                                                                  itemCount:
-                                                                      _filterDifficultiesList
-                                                                          .length,
-                                                                  scrollDirection:
-                                                                      Axis
-                                                                          .horizontal,
-                                                                  itemBuilder:
-                                                                      (context,
-                                                                              index) =>
-                                                                          Container(
-                                                                            alignment:
-                                                                                Alignment.center,
-                                                                            padding:
-                                                                                const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-                                                                            margin:
-                                                                                const EdgeInsets.only(right: 10),
-                                                                            decoration:
-                                                                                BoxDecoration(color: _levelDifficultiesColorsList[index], borderRadius: const BorderRadius.all(Radius.circular(20))),
-                                                                            child:
-                                                                                Text(
-                                                                              _filterDifficultiesList[index],
-                                                                              style: GoogleFonts.jost(textStyle: const TextStyle(color: Colors.black)),
-                                                                            ),
-                                                                          )),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    top: 0,
-                                                    right: 0,
-                                                    child: IconButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
-                                                        icon: const Icon(
-                                                            Icons.close)),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ));
+                                  print(authViewModel.isGuestMode);
+                                  // showDialog(
+                                  //     context: context,
+                                  //     builder: (context) => Dialog(
+                                  //           child: SizedBox(
+                                  //             width: MediaQuery.of(context)
+                                  //                     .size
+                                  //                     .width *
+                                  //                 0.7,
+                                  //             child: Stack(
+                                  //               children: [
+                                  //                 Padding(
+                                  //                   padding:
+                                  //                       const EdgeInsets.all(
+                                  //                           8.0),
+                                  //                   child: Column(
+                                  //                     crossAxisAlignment:
+                                  //                         CrossAxisAlignment
+                                  //                             .start,
+                                  //                     mainAxisSize:
+                                  //                         MainAxisSize.min,
+                                  //                     children: [
+                                  //                       Text(
+                                  //                         'Filter',
+                                  //                         style: GoogleFonts.jost(
+                                  //                             textStyle: const TextStyle(
+                                  //                                 fontSize: 20,
+                                  //                                 fontWeight:
+                                  //                                     FontWeight
+                                  //                                         .bold)),
+                                  //                       ),
+                                  //                       const SizedBox(
+                                  //                         height: 20,
+                                  //                       ),
+                                  //                       Text('Difficulty Level',
+                                  //                           style: GoogleFonts.jost(
+                                  //                               textStyle:
+                                  //                                   const TextStyle(
+                                  //                                       fontSize:
+                                  //                                           16,
+                                  //                                       color:
+                                  //                                           lightGreyTextColor))),
+                                  //                       const SizedBox(
+                                  //                         height: 10,
+                                  //                       ),
+                                  //                       ConstrainedBox(
+                                  //                         constraints:
+                                  //                             const BoxConstraints(
+                                  //                                 maxHeight:
+                                  //                                     30),
+                                  //                         child:
+                                  //                             ListView.builder(
+                                  //                                 itemCount:
+                                  //                                     _filterDifficultiesList
+                                  //                                         .length,
+                                  //                                 scrollDirection:
+                                  //                                     Axis
+                                  //                                         .horizontal,
+                                  //                                 itemBuilder:
+                                  //                                     (context,
+                                  //                                             index) =>
+                                  //                                         Container(
+                                  //                                           alignment:
+                                  //                                               Alignment.center,
+                                  //                                           padding:
+                                  //                                               const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+                                  //                                           margin:
+                                  //                                               const EdgeInsets.only(right: 10),
+                                  //                                           decoration:
+                                  //                                               BoxDecoration(color: _levelDifficultiesColorsList[index], borderRadius: const BorderRadius.all(Radius.circular(20))),
+                                  //                                           child:
+                                  //                                               Text(
+                                  //                                             _filterDifficultiesList[index],
+                                  //                                             style: GoogleFonts.jost(textStyle: const TextStyle(color: Colors.black)),
+                                  //                                           ),
+                                  //                                         )),
+                                  //                       )
+                                  //                     ],
+                                  //                   ),
+                                  //                 ),
+                                  //                 Positioned(
+                                  //                   top: 0,
+                                  //                   right: 0,
+                                  //                   child: IconButton(
+                                  //                       onPressed: () {
+                                  //                         Navigator.pop(
+                                  //                             context);
+                                  //                       },
+                                  //                       icon: const Icon(
+                                  //                           Icons.close)),
+                                  //                 )
+                                  //               ],
+                                  //             ),
+                                  //           ),
+                                  //         ));
                                 },
                               )),
                         ),
@@ -468,35 +473,26 @@ class _CardDetailsPositionedScreenState
   final int _dragThreshold = 100;
   double _dragStartY = 0.0;
   double _dragEndY = 0.0;
+  Map<dynamic, dynamic> _cardData = {};
 
-  late TabController _tabController;
-
-  int _selectedIndex = 0;
-  final List<String> _tabs = ["User Role", "AI Role", "Tasks"];
-  final List<Map<String, dynamic>> _statsList = [
-    {'text': "Friendliness", 'color': primaryPurpleColor, 'stats': 6},
-    {'text': "Efficiency", 'color': Colors.blueAccent, 'stats': 8},
-    {'text': "Adaptability", 'color': Colors.amberAccent, 'stats': 5}
-  ];
-  int averageOverallDifficulty() {
-    int overallStats =
-        _statsList.fold(0, (acc, el) => acc + (el['stats'] as int));
-    double average = overallStats / _statsList.length;
-    return average.floor();
-  }
-
-  final List<String> _tasksList = [
-    'I have a pain in my back, could you take a look?',
-    "What are you doing today?",
-    "Do you want to play any games with me?"
+  final List<Map<String, dynamic>> _tabs = [
+    {
+      'title': "Card Description",
+      'icon': Iconsax.card,
+    },
+    {
+      'title': "Card Tasks",
+      'icon': Iconsax.task,
+    },
+    {
+      'title': "AI Personality",
+      'icon': Icons.add_reaction_outlined,
+    },
   ];
 
   @override
   void initState() {
-    _tabController = TabController(length: _tabs.length, vsync: this)
-      ..addListener(() => setState(() {
-            _selectedIndex = _tabController.index;
-          }));
+    _cardData = transformListData[widget.index];
     super.initState();
   }
 
@@ -523,434 +519,317 @@ class _CardDetailsPositionedScreenState
                 widget.controller.reverse();
               }
             },
-            child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30))),
-                height: 520,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Challenge: ',
+            child: ClipPath(
+              clipper: CustomCardDetailsClipper(),
+              child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(
+                      gradient:
+                          RadialGradient(center: Alignment.topCenter, colors: [
+                        Colors.white,
+                        backgroundColor,
+                      ]),
+                      color: backgroundColor,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30))),
+                  height: 520,
+                  child: SingleChildScrollView(
+                      child: Column(
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        'Card Details',
                         style: GoogleFonts.jost(
-                            textStyle: const TextStyle(
-                          fontSize: 18,
-                        ))),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      transformListData[widget.index]['descr'],
-                      style: GoogleFonts.jost(
-                          textStyle: const TextStyle(
-                              fontSize: 16, color: lightGreyTextColor)),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        Text('Estimatated Time: ',
-                            style: GoogleFonts.jost(
-                                textStyle: const TextStyle(
-                              fontSize: 18,
-                            ))),
-                        Text('2-3 minutes',
-                            style: GoogleFonts.jost(
-                                textStyle: const TextStyle(
-                                    fontSize: 16, color: lightGreyTextColor)))
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                          itemCount: (transformListData[widget.index]['tasks']
-                                  as List<Map<String, String>>)
-                              .length,
-                          itemBuilder: (context, index) {
-                            List<Map<String, String>> tasksList =
-                                transformListData[widget.index]['tasks']
-                                    as List<Map<String, String>>;
-                            return Container(
-                              margin: const EdgeInsets.only(top: 10),
-                              decoration: const BoxDecoration(
-                                  color: customButtonColor,
-                                  boxShadow: [
-                                    BoxShadow(
-                                        blurRadius: 1,
-                                        spreadRadius: 1,
-                                        color: Colors.black12,
-                                        offset: Offset(0, 1))
-                                  ],
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20))),
-                              child: ListTile(
-                                leading: Text(
-                                    tasksList.length < 10
-                                        ? '0${index + 1}'
-                                        : (index + 1).toString(),
-                                    style: GoogleFonts.jost(
-                                        textStyle: const TextStyle(
-                                            fontSize: 16,
-                                            color: lightGreyTextColor))),
-                                title: Text(tasksList[index]['visibleTask']!,
-                                    style: GoogleFonts.jost(
-                                        textStyle:
-                                            const TextStyle(fontSize: 14))),
-                              ),
-                            );
-                          }),
-                    )
-                  ],
+                            fontSize: 25,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w300,
+                            shadows: [
+                              const Shadow(
+                                  color: Colors.black12,
+                                  blurRadius: 5,
+                                  offset: Offset(0, 2))
+                            ],
+                            letterSpacing: 2),
+                      ),
+                      const Divider(
+                        thickness: 0.4,
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Flexible(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                        boxShadow: const [
+                                          BoxShadow(
+                                              blurRadius: 1,
+                                              spreadRadius: 1,
+                                              color: Colors.black12,
+                                              offset: Offset(0, 1))
+                                        ],
+                                        shape: BoxShape.circle,
+                                        color: transformListData[widget.index]
+                                            ['colors'][1]),
+                                    child: const Icon(
+                                      Icons.timer,
+                                      size: 30,
+                                      color: Colors.white,
+                                    )),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  convertIntegerToTime(
+                                      transformListData[widget.index]['time']),
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.jost(
+                                      color: customGreenColor,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 16,
+                                      letterSpacing: 3,
+                                      shadows: [
+                                        Shadow(
+                                            blurRadius: 5,
+                                            offset: const Offset(0, 2),
+                                            color:
+                                                Colors.white.withOpacity(0.15))
+                                      ]),
+                                )
+                              ],
+                            ),
+                          ),
+                          Flexible(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                        boxShadow: const [
+                                          BoxShadow(
+                                              blurRadius: 1,
+                                              spreadRadius: 1,
+                                              color: Colors.black12,
+                                              offset: Offset(0, 1))
+                                        ],
+                                        shape: BoxShape.circle,
+                                        color: transformListData[widget.index]
+                                            ['colors'][1]),
+                                    child: const Icon(
+                                      Icons.gamepad,
+                                      size: 30,
+                                      color: Colors.white,
+                                    )),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  (transformListData[widget.index]
+                                          ['scenarioType'] as ScenarioTypes)
+                                      .type,
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.jost(
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      letterSpacing: 3,
+                                      shadows: [
+                                        Shadow(
+                                            blurRadius: 5,
+                                            offset: const Offset(0, 2),
+                                            color:
+                                                Colors.white.withOpacity(0.15))
+                                      ]),
+                                )
+                              ],
+                            ),
+                          ),
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                        boxShadow: const [
+                                          BoxShadow(
+                                              blurRadius: 1,
+                                              spreadRadius: 1,
+                                              color: Colors.black12,
+                                              offset: Offset(0, 1))
+                                        ],
+                                        shape: BoxShape.circle,
+                                        color: transformListData[widget.index]
+                                            ['colors'][1]),
+                                    child: const Icon(
+                                      Iconsax.category,
+                                      size: 30,
+                                      color: Colors.white,
+                                    )),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  (transformListData[widget.index]['level']
+                                          as ChatDifficultLevels)
+                                      .level,
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.jost(
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      letterSpacing: 3,
+                                      shadows: [
+                                        Shadow(
+                                            blurRadius: 5,
+                                            offset: const Offset(0, 2),
+                                            color:
+                                                Colors.white.withOpacity(0.15))
+                                      ]),
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      ..._tabs.map((el) => CardDetailsItem(
+                            index: widget.index,
+                            icon: el['icon'],
+                            title: el['title'],
+                          ))
+                    ],
+                  ))),
+            )));
+  }
+}
+
+class CardDetailsItem extends StatefulWidget {
+  const CardDetailsItem({
+    required this.title,
+    required this.icon,
+    required this.index,
+    super.key,
+  });
+
+  final String title;
+  final IconData icon;
+  final int index;
+  @override
+  State<CardDetailsItem> createState() => _CardDetailsItemState();
+}
+
+class _CardDetailsItemState extends State<CardDetailsItem> {
+  bool _isAdditionalInfoOpened = false;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: () {
+            _isAdditionalInfoOpened = !_isAdditionalInfoOpened;
+            setState(() {});
+          },
+          child: Container(
+            margin: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [
+                  backgroundColor,
+                  transformListData[widget.index]['colors'][1]
+                ]),
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                color: backgroundColor,
+                boxShadow: [
+                  BoxShadow(
+                      blurRadius: 1,
+                      spreadRadius: 1,
+                      color: Colors.black.withOpacity(0.05),
+                      offset: const Offset(0, 1))
+                ]),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Icon(
+                  widget.icon,
+                  color: Colors.black54,
+                ),
+                Text(widget.title,
+                    style: GoogleFonts.jost(
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                        letterSpacing: 3,
+                        shadows: [
+                          Shadow(
+                              blurRadius: 5,
+                              offset: const Offset(0, 2),
+                              color: Colors.white.withOpacity(0.15))
+                        ])),
+                Icon(
+                  _isAdditionalInfoOpened
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  color: Colors.black54,
                 )
+              ],
+            ),
+          ),
+        ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          child: _isAdditionalInfoOpened
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'You’re visiting a small grocery store in a village and need help finding some basic items. ',
+                    style: GoogleFonts.jost(color: lightGreyTextColor),
+                  ),
+                )
+              : const SizedBox.shrink(),
+        )
+      ],
+    );
+  }
+}
 
-                // child: DefaultTabController(
-                //   length: _tabs.length,
-                //   child: Container(
-                //     padding: const EdgeInsets.all(20),
-                //     decoration: const BoxDecoration(
-                //         color: Colors.white,
-                //         borderRadius: BorderRadius.only(
-                //             topLeft: Radius.circular(30),
-                //             topRight: Radius.circular(30))),
-                //     height: 520,
-                //     child: Column(
-                //       children: [
-                //         Container(
-                //             margin: const EdgeInsets.only(top: 10),
-                //             padding: const EdgeInsets.all(5),
-                //             width: double.infinity,
-                //             height: 50,
-                //             decoration: BoxDecoration(
-                //               border: Border.all(
-                //                   style: BorderStyle.solid,
-                //                   color: Colors.white.withOpacity(0.8)),
-                //               boxShadow: const [
-                //                 BoxShadow(
-                //                   color: Colors.white,
-                //                   spreadRadius: -8.0,
-                //                   blurRadius: 10.0,
-                //                   offset: Offset(0, 2),
-                //                 )
-                //               ],
-                //               borderRadius: BorderRadius.circular(20),
-                //               color: semiGreyColor,
-                //             ),
-                //             child: TabBar(
-                //                 onTap: (value) => setState(() {
-                //                       _tabController.index = value;
-                //                     }),
-                //                 labelPadding: const EdgeInsets.all(0),
-                //                 padding: const EdgeInsets.all(0),
-                //                 dividerColor: semiGreyColor,
-                //                 indicatorColor: semiGreyColor,
-                //                 tabs: _tabs.asMap().entries.map(
-                //                   (entry) {
-                //                     int index = entry.key; // The index in the list
-                //                     String value = entry.value;
-                //                     return Tab(
-                //                       child: _selectedIndex == index
-                //                           ? Container(
-                //                               alignment: Alignment.center,
-                //                               constraints:
-                //                                   const BoxConstraints.expand(),
-                //                               // margin:
-                //                               //     const EdgeInsets.only(right: 10),
-                //                               decoration: BoxDecoration(
-                //                                   color: customButtonColor,
-                //                                   borderRadius:
-                //                                       BorderRadius.circular(20),
-                //                                   boxShadow: const [
-                //                                     BoxShadow(
-                //                                         color: Colors.black12,
-                //                                         blurRadius: 1,
-                //                                         spreadRadius: 1)
-                //                                   ]),
-                //                               child: Text(value,
-                //                                   style: GoogleFonts.jost(
-                //                                       textStyle: const TextStyle(
-                //                                           color: lightGreyTextColor,
-                //                                           letterSpacing: 5))),
-                //                             )
-                //                           : Text(
-                //                               value,
-                //                               style: GoogleFonts.jost(),
-                //                             ),
-                //                     );
-                //                   },
-                //                 ).toList())),
-                //         const SizedBox(
-                //           height: 20,
-                //         ),
-                //         Expanded(
-                //           child: TabBarView(
-                //             controller: _tabController,
-                //             children: [
-                //               Column(
-                //                 children: [
-                //                   Align(
-                //                     alignment: Alignment.centerLeft,
-                //                     child: RichText(
-                //                         text: TextSpan(children: [
-                //                       TextSpan(
-                //                           text: 'Difficulty: ',
-                //                           style: GoogleFonts.jost(
-                //                               textStyle: const TextStyle(
-                //                                   fontSize: 20,
-                //                                   color: Colors.black))),
-                //                       WidgetSpan(
-                //                           child: RatingBar.builder(
-                //                         ignoreGestures: true,
-                //                         itemSize: 20,
-                //                         initialRating: 3,
-                //                         minRating: 1,
-                //                         direction: Axis.horizontal,
-                //                         allowHalfRating: true,
-                //                         itemCount: 5,
-                //                         itemPadding: const EdgeInsets.symmetric(
-                //                             horizontal: 2.0),
-                //                         itemBuilder: (context, _) => const Icon(
-                //                           Icons.star,
-                //                           color: Colors.amber,
-                //                         ),
-                //                         onRatingUpdate: (_) {},
-                //                       ))
-                //                     ])),
-                //                   ),
-                //                   const SizedBox(
-                //                     height: 5,
-                //                   ),
-                //                   Align(
-                //                     alignment: Alignment.centerLeft,
-                //                     child: RichText(
-                //                         text: TextSpan(children: [
-                //                       TextSpan(
-                //                           text: 'Previous Score: ',
-                //                           style: GoogleFonts.jost(
-                //                               textStyle: const TextStyle(
-                //                                   fontSize: 20,
-                //                                   color: Colors.black))),
-                //                       TextSpan(
-                //                           text: 'No Score',
-                //                           style: GoogleFonts.jost(
-                //                               textStyle: const TextStyle(
-                //                                   fontSize: 20,
-                //                                   color: lightGreyTextColor)))
-                //                     ])),
-                //                   ),
-                //                   const SizedBox(
-                //                     height: 10,
-                //                   ),
-                //                   Expanded(
-                //                     flex: 1,
-                //                     child: Column(
-                //                       crossAxisAlignment: CrossAxisAlignment.start,
-                //                       children: [
-                //                         Text(
-                //                           'Your Role:',
-                //                           style: GoogleFonts.amiri(
-                //                               textStyle: const TextStyle(
-                //                                   fontSize: 15,
-                //                                   fontWeight: FontWeight.bold)),
-                //                         ),
-                //                         Text(
-                //                           "You are a busy professional who needs to get to an important meeting across town. The weather is bad, and you're running late. You need to call a taxi service to arrange a pick-up as quickly as possible, but you also want to ensure that the ride is comfortable and efficient.",
-                //                           style: GoogleFonts.jost(
-                //                               textStyle:
-                //                                   const TextStyle(fontSize: 12)),
-                //                         ),
-                //                         const SizedBox(
-                //                           height: 10,
-                //                         ),
-                //                         Text(
-                //                           'Challenge:',
-                //                           style: GoogleFonts.amiri(
-                //                               textStyle: const TextStyle(
-                //                                   fontSize: 15,
-                //                                   fontWeight: FontWeight.bold)),
-                //                         ),
-                //                         Text(
-                //                           "The challenge in this chat scenario is that it's rush hour, and most taxis are booked. Sam is under pressure and might initially seem unhelpful or distracted. Additionally, the nearest available driver is known for being a bit grumpy and isn't happy about the heavy traffic. You need to navigate this situation to get the taxi you need without further delays.",
-                //                           style: GoogleFonts.jost(
-                //                               textStyle:
-                //                                   const TextStyle(fontSize: 12)),
-                //                         )
-                //                       ],
-                //                     ),
-                //                   ),
-                //                 ],
-                //               ),
-                //               Column(
-                //                 children: [
-                //                   Row(
-                //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //                     children: [
-                //                       Flexible(
-                //                         child: Stack(
-                //                           children: [
-                //                             Container(
-                //                               decoration: BoxDecoration(
-                //                                   gradient:
-                //                                       const RadialGradient(colors: [
-                //                                     Colors.white,
-                //                                     customButtonColor,
-                //                                   ]),
-                //                                   border: Border.all(
-                //                                       style: BorderStyle.solid,
-                //                                       color: Colors.black26),
-                //                                   shape: BoxShape.circle),
-                //                               width: 150,
-                //                               height: 150,
-                //                               child: Transform.scale(
-                //                                   scale: 0.8,
-                //                                   child: Image.asset(
-                //                                       'assets/images/young_man.png')),
-                //                             ),
-                //                             Positioned(
-                //                               bottom: 0,
-                //                               child: Container(
-                //                                 alignment: Alignment.center,
-                //                                 width: 150,
-                //                                 height: 150 / 5.5,
-                //                                 decoration: const BoxDecoration(
-                //                                     color: Colors.white,
-                //                                     boxShadow: [
-                //                                       BoxShadow(
-                //                                           blurRadius: 1,
-                //                                           spreadRadius: 1,
-                //                                           color: Colors.black12,
-                //                                           offset: Offset(0, 1))
-                //                                     ],
-                //                                     borderRadius: BorderRadius.all(
-                //                                       Radius.circular(20),
-                //                                     )),
-                //                                 child: Text(
-                //                                   '다영아',
-                //                                   style: GoogleFonts.jost(),
-                //                                 ),
-                //                               ),
-                //                             )
-                //                           ],
-                //                         ),
-                //                       ),
-                //                       Flexible(
-                //                         child: Column(
-                //                           children: List.generate(_statsList.length,
-                //                               (int index) {
-                //                             return StatsWidget(
-                //                                 index: index,
-                //                                 size: 20,
-                //                                 stats: _statsList[index]['stats'],
-                //                                 color: _statsList[index]['color'],
-                //                                 text: _statsList[index]['text']);
-                //                           }),
-                //                         ),
-                //                       )
-                //                     ],
-                //                   ),
-                //                   const SizedBox(
-                //                     height: 10,
-                //                   ),
-                //                   StatsWidget(
-                //                     color: customGreenColor,
-                //                     text: 'Overall AI Bot Difficulty',
-                //                     stats: averageOverallDifficulty(),
-                //                   ),
-                //                   const SizedBox(
-                //                     height: 10,
-                //                   ),
-                //                   Flexible(
-                //                     flex: 1,
-                //                     child: Container(
-                //                       padding: const EdgeInsets.all(10),
-                //                       decoration: const BoxDecoration(
-                //                         borderRadius:
-                //                             BorderRadius.all(Radius.circular(5)),
-                //                         border: Border(
-                //                             top: BorderSide(
-                //                                 style: BorderStyle.solid,
-                //                                 color: Colors.black12)),
-                //                         boxShadow: [
-                //                           BoxShadow(
-                //                             color: Colors.white,
-                //                             spreadRadius: -8.0,
-                //                             blurRadius: 10.0,
-                //                             offset: Offset(0, 2),
-                //                           ),
-                //                         ],
-                //                         color: semiGreyColor,
-                //                       ),
-                //                       child: Column(
-                //                         crossAxisAlignment: CrossAxisAlignment.start,
-                //                         children: [
-                //                           Text(
-                //                             'AI Bot Description:',
-                //                             style: GoogleFonts.amiri(
-                //                                 textStyle: const TextStyle(
-                //                                     fontSize: 15,
-                //                                     fontWeight: FontWeight.bold)),
-                //                           ),
-                //                           Text(
-                //                             'The AI bot simulates a middle-aged taxi dispatcher named Sam. Sam has been working in the taxi industry for over 15 years, knows the city inside and out, and takes pride in getting customers where they need to go efficiently. Sam is generally polite and professional but can be a bit curt during busy hours.',
-                //                             style: GoogleFonts.jost(
-                //                                 textStyle:
-                //                                     const TextStyle(fontSize: 12)),
-                //                           )
-                //                         ],
-                //                       ),
-                //                     ),
-                //                   )
-                //                 ],
-                //               ),
-                //               Column(
-                //                 children: [
-                //                   Align(
-                //                     alignment: Alignment.centerLeft,
-                //                     child: Text(
-                //                       'Your Tasks',
-                //                       style: GoogleFonts.amiri(
-                //                           textStyle: const TextStyle(
-                //                               fontSize: 20,
-                //                               fontWeight: FontWeight.bold)),
-                //                     ),
-                //                   ),
-                //                   Align(
-                //                     alignment: Alignment.centerLeft,
-                //                     child: Text(
-                //                         'Your tasks for this chat to ask questions below',
-                //                         style: GoogleFonts.jost(
-                //                             textStyle: const TextStyle(
-                //                                 fontSize: 12,
-                //                                 color: lightGreyTextColor))),
-                //                   ),
-                //                   const SizedBox(
-                //                     height: 20,
-                //                   ),
-                //                   Column(
-                //                       crossAxisAlignment: CrossAxisAlignment.start,
-                //                       children: List.generate(_tasksList.length,
-                //                           (int index) {
-                //                         return CourseContent(
-                //                           number: '0${index + 1}',
-                //                           title: _tasksList[index],
-                //                         );
-                //                       })),
-                //                 ],
-                //               ),
-                //             ],
-                //           ),
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
+class CustomCardDetailsClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final Path path = Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width * 0.3, 0)
+      ..lineTo(size.width * 0.3 + 20, 20)
+      ..lineTo(size.width * 0.7 - 20, 20)
+      ..lineTo(size.width * 0.7, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    return path;
+  }
 
-                )));
+  @override
+  bool shouldReclip(covariant CustomClipper oldClipper) {
+    return false;
   }
 }
 

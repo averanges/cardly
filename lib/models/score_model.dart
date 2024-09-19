@@ -71,22 +71,4 @@ class ScoreModel {
 
     return totalScore / allResponseTimeData.length;
   }
-
-  double calculateOverallScore({
-    double accuracyWeight = 0.4,
-    double responsivenessWeight = 0.3,
-    double taskCompletionWeight = 0.2,
-    double engagementWeight = 0.1,
-  }) {
-    double accuracyScore = getUserAccuracy();
-    double responsivenessScore = calculateOverallResponsivenessScore();
-    double taskCompletionScore = calculateTaskCompletionRatio();
-    double engagementScore = calculateEngagementScore();
-
-    double weightedSum = (accuracyScore * accuracyWeight) +
-        (responsivenessScore * responsivenessWeight) +
-        (taskCompletionScore * taskCompletionWeight) +
-        (engagementScore * engagementWeight);
-    return weightedSum * 10;
-  }
 }

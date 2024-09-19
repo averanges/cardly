@@ -12,7 +12,7 @@ class ScoreScreen extends StatefulWidget {
       required this.accuracy,
       required this.tasksCompletionScore,
       required this.engagementScore,
-      required this.overallScore,
+      this.overallScore = 0,
       required this.responsivenessRate});
   final double accuracy;
   final double engagementScore;
