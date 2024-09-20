@@ -6,6 +6,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 import 'package:sound/features/chat/view_model/auth_view_model.dart';
+import 'package:sound/generated/l10n.dart';
 import 'package:sound/pages/entry_point.dart';
 import 'package:sound/pages/template_gallery/ui/widgets/custom_page_route_build.dart';
 import 'package:sound/utils/colors.dart';
@@ -160,17 +161,18 @@ class _StartScreenState extends State<StartScreen>
                                     borderRadius: const BorderRadius.all(
                                         Radius.circular(10))),
                                 margin: const EdgeInsets.only(bottom: 60),
-                                child: const Row(
+                                child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      'Get Started',
-                                      style: TextStyle(color: Colors.white),
+                                      S.of(context).getStarted,
+                                      style:
+                                          const TextStyle(color: Colors.white),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 10,
                                     ),
-                                    Icon(
+                                    const Icon(
                                       FontAwesomeIcons.locationArrow,
                                       color: Colors.white,
                                     )
@@ -261,13 +263,12 @@ class _RefreshPasswordState extends State<RefreshPassword> {
       child: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
-          print('click');
         },
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Forgot Password?',
+              S.of(context).forgotPassword,
               style: GoogleFonts.jost(
                   textStyle: const TextStyle(
                       fontSize: 24,
@@ -278,7 +279,7 @@ class _RefreshPasswordState extends State<RefreshPassword> {
               height: 10,
             ),
             Text(
-              'No need to worry. Tell us your e-mail and we will send you link to reset you password!',
+              S.of(context).noNeedToWorryTellUsYourEmailAndWe,
               style: GoogleFonts.jost(color: lightGreyTextColor),
               textAlign: TextAlign.center,
             ),
@@ -295,7 +296,7 @@ class _RefreshPasswordState extends State<RefreshPassword> {
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                           prefixIcon: const Icon(Iconsax.direct_inbox),
-                          hintText: 'Email...',
+                          hintText: S.of(context).emailHintWIthDots,
                           contentPadding: const EdgeInsets.symmetric(
                               vertical: 10, horizontal: 20),
                           border: const OutlineInputBorder(
@@ -338,7 +339,7 @@ class _RefreshPasswordState extends State<RefreshPassword> {
                             ? const CircularProgressIndicator(
                                 color: Colors.white,
                               )
-                            : Text('Reset Password'.toUpperCase(),
+                            : Text(S.of(context).resetPassword.toUpperCase(),
                                 style: GoogleFonts.jost(
                                     textStyle: const TextStyle(
                                         fontSize: 14, color: Colors.white))),
@@ -350,7 +351,7 @@ class _RefreshPasswordState extends State<RefreshPassword> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Back to Login?',
+                        Text(S.of(context).backToLogin,
                             style: GoogleFonts.jost(
                                 textStyle: const TextStyle(
                                     fontSize: 14, color: lightGreyTextColor))),
@@ -358,7 +359,7 @@ class _RefreshPasswordState extends State<RefreshPassword> {
                             onPressed: () {
                               widget.voidCallback();
                             },
-                            child: Text('Sign In',
+                            child: Text(S.of(context).signIn,
                                 style: GoogleFonts.jost(
                                     textStyle: const TextStyle(
                                         fontSize: 14,
@@ -387,7 +388,7 @@ class RegistrationModalBottom extends StatefulWidget {
 }
 
 class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
-  bool _isPasswordHidden = true;
+  final bool _isPasswordHidden = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPswController = TextEditingController();
@@ -403,13 +404,12 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
       child: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
-          print('click');
         },
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Registration',
+              S.of(context).registration,
               style: GoogleFonts.jost(
                   textStyle: const TextStyle(
                       fontSize: 24,
@@ -429,7 +429,7 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                           prefixIcon: const Icon(Iconsax.direct_inbox),
-                          hintText: 'Email...',
+                          hintText: S.of(context).emailHintWIthDots,
                           contentPadding: const EdgeInsets.symmetric(
                               vertical: 10, horizontal: 20),
                           border: const OutlineInputBorder(
@@ -440,53 +440,23 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
                           filled: true),
                     ),
                     const SizedBox(
+                      height: 20,
+                    ),
+                    CustomTextFormField(
+                      icon: Iconsax.lock,
+                      hintText: S.of(context).passwordHintWithDots,
+                      passwordController: _passwordController,
+                      validator: passwordValidation,
+                    ),
+                    const SizedBox(
                       height: 10,
                     ),
-                    TextFormField(
-                      obscureText: _isPasswordHidden,
-                      controller: _passwordController,
-                      validator: passwordValidation,
-                      decoration: InputDecoration(
-                          prefixIcon: const Icon(Iconsax.lock),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Iconsax.eye),
-                            onPressed: () {
-                              _isPasswordHidden = !_isPasswordHidden;
-                              setState(() {});
-                            },
-                          ),
-                          hintText: 'Password...',
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          border: const OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20))),
-                          fillColor: Colors.black.withOpacity(0.05),
-                          filled: true),
-                    ),
-                    TextFormField(
-                      obscureText: _isPasswordHidden,
-                      controller: _confirmPswController,
-                      validator: passwordValidation,
-                      decoration: InputDecoration(
-                          prefixIcon: const Icon(Iconsax.lock),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Iconsax.eye),
-                            onPressed: () {
-                              _isPasswordHidden = !_isPasswordHidden;
-                              setState(() {});
-                            },
-                          ),
-                          hintText: 'Repeat password...',
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          border: const OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20))),
-                          fillColor: Colors.black.withOpacity(0.05),
-                          filled: true),
+                    CustomTextFormField(
+                      icon: Iconsax.lock_1,
+                      hintText: S.of(context).repeatPasswordHintWithDots,
+                      passwordController: _confirmPswController,
+                      validator: (value) => confirmPasswordValidation(
+                          _passwordController.text, value!),
                     ),
                     AnimatedSwitcher(
                         duration: const Duration(milliseconds: 300),
@@ -502,7 +472,7 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
                       onTap: () async {
                         _authError = '';
                         if (authViewModel.isLoggedIn) {
-                          _authError = "User already logged in";
+                          _authError = S.of(context).userAlreadyLoggedIn;
                           setState(() {});
                           Navigator.of(context)
                               .push(customPageRouteBuild(const EntryPoint()));
@@ -522,7 +492,8 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
                           } on FirebaseAuthException catch (e) {
                             _authError = e.message!;
                           } catch (e) {
-                            _authError = 'An unexpected error occurred.';
+                            _authError =
+                                S.of(context).anUnexpectedErrorOccurred;
                           }
                         }
                         _isLoading = false;
@@ -549,7 +520,7 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
                             ? const CircularProgressIndicator(
                                 color: Colors.white,
                               )
-                            : Text('Sign Up'.toUpperCase(),
+                            : Text(S.of(context).signUp.toUpperCase(),
                                 style: GoogleFonts.jost(
                                     textStyle: const TextStyle(
                                         fontSize: 14, color: Colors.white))),
@@ -561,7 +532,7 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Already have an account?',
+                        Text(S.of(context).alreadyHaveAnAccount,
                             style: GoogleFonts.jost(
                                 textStyle: const TextStyle(
                                     fontSize: 14, color: lightGreyTextColor))),
@@ -569,7 +540,7 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
                             onPressed: () {
                               widget.voidCallback();
                             },
-                            child: Text('Sign In',
+                            child: Text(S.of(context).signIn,
                                 style: GoogleFonts.jost(
                                     textStyle: const TextStyle(
                                         fontSize: 14,
@@ -581,6 +552,54 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class CustomTextFormField extends StatefulWidget {
+  const CustomTextFormField({
+    super.key,
+    required TextEditingController passwordController,
+    required this.validator,
+    required this.hintText,
+    required this.icon,
+  }) : _passwordController = passwordController;
+
+  final TextEditingController _passwordController;
+  final String? Function(String?) validator;
+  final String hintText;
+  final IconData icon;
+
+  @override
+  State<CustomTextFormField> createState() => _CustomTextFormFieldState();
+}
+
+class _CustomTextFormFieldState extends State<CustomTextFormField> {
+  bool _isPasswordHidden = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      obscureText: _isPasswordHidden,
+      controller: widget._passwordController,
+      validator: widget.validator,
+      decoration: InputDecoration(
+          prefixIcon: Icon(widget.icon),
+          suffixIcon: IconButton(
+            icon: const Icon(Iconsax.eye),
+            onPressed: () {
+              _isPasswordHidden = !_isPasswordHidden;
+              setState(() {});
+            },
+          ),
+          hintText: widget.hintText,
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          border: const OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.all(Radius.circular(20))),
+          fillColor: Colors.black.withOpacity(0.05),
+          filled: true),
     );
   }
 }
@@ -612,7 +631,7 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Login',
+            S.of(context).login,
             style: GoogleFonts.jost(
                 textStyle: const TextStyle(
                     fontSize: 24,
@@ -632,7 +651,7 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                         prefixIcon: const Icon(Iconsax.direct_inbox),
-                        hintText: 'Email...',
+                        hintText: S.of(context).emailHintWIthDots,
                         contentPadding: const EdgeInsets.symmetric(
                             vertical: 10, horizontal: 20),
                         border: const OutlineInputBorder(
@@ -659,7 +678,7 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
                               _isPasswordHidden = !_isPasswordHidden;
                               setState(() {});
                             }),
-                        hintText: 'Password...',
+                        hintText: S.of(context).passwordHintWithDots,
                         contentPadding: const EdgeInsets.symmetric(
                             vertical: 10, horizontal: 20),
                         border: const OutlineInputBorder(
@@ -683,8 +702,8 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
                   Container(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      child: const Text(
-                        'Forgot you password?',
+                      child: Text(
+                        S.of(context).forgotPassword,
                       ),
                       onPressed: () {
                         widget.openResetPsw();
@@ -698,7 +717,7 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
                     onTap: () async {
                       _authError = '';
                       if (authViewModel.isLoggedIn) {
-                        _authError = "User already logged in";
+                        _authError = S.of(context).userAlreadyLoggedIn;
                         setState(() {});
                         Navigator.of(context)
                             .push(customPageRouteBuild(const EntryPoint()));
@@ -718,7 +737,7 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
                         } on FirebaseAuthException catch (e) {
                           _authError = e.message!;
                         } catch (e) {
-                          _authError = 'An unexpected error occurred.';
+                          _authError = S.of(context).anUnexpectedErrorOccurred;
                         }
                       }
                       _isLoading = false;
@@ -745,7 +764,7 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
                           ? const CircularProgressIndicator(
                               color: Colors.white,
                             )
-                          : Text('Sign In'.toUpperCase(),
+                          : Text(S.of(context).signIn.toUpperCase(),
                               style: GoogleFonts.jost(
                                   textStyle: const TextStyle(
                                       fontSize: 14, color: Colors.white))),
@@ -757,7 +776,7 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
                   GestureDetector(
                     onTap: () async {
                       if (authViewModel.isLoggedIn) {
-                        _authError = "User already logged in";
+                        _authError = S.of(context).userAlreadyLoggedIn;
 
                         setState(() {});
                         return;
@@ -781,7 +800,7 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
                               const BorderRadius.all(Radius.circular(20)),
                           border: Border.all(
                               style: BorderStyle.solid, color: Colors.white)),
-                      child: Text('guest mode'.toUpperCase(),
+                      child: Text(S.of(context).guestMode.toUpperCase(),
                           style: GoogleFonts.jost(
                               textStyle: const TextStyle(
                                   fontSize: 14,
@@ -795,7 +814,7 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Don't have an account yet?",
+                      Text(S.of(context).dontHaveAnAccountYet,
                           style: GoogleFonts.jost(
                               textStyle: const TextStyle(
                                   fontSize: 14, color: lightGreyTextColor))),
@@ -803,7 +822,7 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
                           onPressed: () {
                             widget.voidCallback();
                           },
-                          child: Text('Sign Up',
+                          child: Text(S.of(context).signUp,
                               style: GoogleFonts.jost(
                                   textStyle: const TextStyle(
                                       fontSize: 14,

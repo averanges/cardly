@@ -42,6 +42,7 @@ class GlobalUserViewModel extends ChangeNotifier {
       _languageModelsList.add(LanguageModel(
           name: language['name']!,
           countryCode: language['code2']!,
+          locale: Locale(language['code3']!),
           languageCode: language['code1']!));
     }
 
@@ -89,7 +90,6 @@ class GlobalUserViewModel extends ChangeNotifier {
 
   set targetLanguage(LanguageModel language) {
     _targetLanguage = language;
-
     _preferences.setString('targetLanguageName', language.name);
     notifyListeners();
   }
@@ -97,6 +97,6 @@ class GlobalUserViewModel extends ChangeNotifier {
   set translationLanguage(LanguageModel language) {
     _translationLanguage = language;
     _preferences.setString('translationLanguageName', language.name);
-    notifyListeners();
+    // notifyListeners();
   }
 }

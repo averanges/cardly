@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:sound/features/chat/view_model/auth_view_model.dart';
 import 'package:sound/features/chat/view_model/global_user_view_model.dart';
+import 'package:sound/generated/l10n.dart';
 import 'package:sound/pages/profile_page.dart';
 import 'package:sound/pages/settings_page.dart';
 import 'package:sound/pages/starting_page.dart';
@@ -19,37 +20,43 @@ class SideBar extends StatefulWidget {
 }
 
 class _SideBarState extends State<SideBar> {
-  final List<Map<String, dynamic>> _menuList = [
-    {
-      'title': 'Profile',
-      'subTitle': 'Manage your profile details.',
-      'icon': Icons.person,
-      'color': Colors.white,
-      'nextPage': const SideMenuItemsLayer(
-        sideMenuTitle: 'Profile',
-        sideMenuSubTitle: 'Manage your profile information below.',
-        child: ProfilePage(),
-      )
-    },
-    {
-      'title': 'Settings',
-      'subTitle': 'Manage your account settings.',
-      'icon': Icons.settings,
-      'color': Colors.white,
-      'nextPage': const SideMenuItemsLayer(
-        sideMenuTitle: 'Settings',
-        sideMenuSubTitle: 'Manage your settings details below.',
-        child: SettingsPage(),
-      )
-    },
-    {
-      'title': 'Log out',
-      'subTitle': 'Log out from this profile.',
-      'icon': Icons.exit_to_app_outlined,
-      'color': Colors.redAccent,
-      'nextPage': const StartScreen()
-    },
-  ];
+  List<Map<String, dynamic>> _menuList = [];
+
+  @override
+  void didChangeDependencies() {
+    _menuList = [
+      {
+        'title': S.of(context).profile,
+        'subTitle': S.of(context).manageYourProfileDetails,
+        'icon': Icons.person,
+        'color': Colors.white,
+        'nextPage': SideMenuItemsLayer(
+          sideMenuTitle: S.of(context).profile,
+          sideMenuSubTitle: S.of(context).manageYourProfileDetails,
+          child: const ProfilePage(),
+        )
+      },
+      {
+        'title': S.of(context).settings,
+        'subTitle': S.of(context).manageYourAccountSettings,
+        'icon': Icons.settings,
+        'color': Colors.white,
+        'nextPage': SideMenuItemsLayer(
+          sideMenuTitle: S.of(context).settings,
+          sideMenuSubTitle: S.of(context).manageYourAccountSettings,
+          child: const SettingsPage(),
+        )
+      },
+      {
+        'title': S.of(context).logOut,
+        'subTitle': S.of(context).logOutFromThisProfile,
+        'icon': Icons.exit_to_app_outlined,
+        'color': Colors.redAccent,
+        'nextPage': const StartScreen()
+      },
+    ];
+    super.didChangeDependencies();
+  }
 
   bool _isLogOutLoading = false;
 
@@ -123,7 +130,7 @@ class _SideBarState extends State<SideBar> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Target Language".toUpperCase(),
+                              S.of(context).targetLanguage.toUpperCase(),
                               style: GoogleFonts.jost(
                                   textStyle: const TextStyle(
                                       fontSize: 14, color: Colors.white70)),
@@ -155,7 +162,7 @@ class _SideBarState extends State<SideBar> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Account Settings".toUpperCase(),
+                              S.of(context).accountSettings.toUpperCase(),
                               style: GoogleFonts.jost(
                                   textStyle: const TextStyle(
                                       fontSize: 14, color: Colors.white70)),
@@ -166,7 +173,7 @@ class _SideBarState extends State<SideBar> {
                             ..._menuList.map(
                               (e) => GestureDetector(
                                 onTap: () async {
-                                  if (e['title'] == 'Log out') {
+                                  if (e['title'] == S.of(context).logOut) {
                                     _isLogOutLoading = true;
                                     print('click');
                                     setState(() {});

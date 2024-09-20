@@ -6,6 +6,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:sound/features/chat/view_model/auth_view_model.dart';
 import 'package:sound/features/chat/view_model/main_screen_view_model.dart';
+import 'package:sound/generated/l10n.dart';
 import 'package:sound/pages/template_gallery/ui/widgets/animated_gradient_text.dart';
 import 'package:sound/pages/template_gallery/ui/widgets/cards.dart';
 import 'package:sound/pages/template_gallery/ui/widgets/perspective_list_view.dart';
@@ -186,101 +187,100 @@ class _MainScreenCardListState extends State<MainScreenCardList>
                               child: IconButton(
                                 icon: const Icon(Icons.sort),
                                 onPressed: () {
-                                  print(authViewModel.isGuestMode);
-                                  // showDialog(
-                                  //     context: context,
-                                  //     builder: (context) => Dialog(
-                                  //           child: SizedBox(
-                                  //             width: MediaQuery.of(context)
-                                  //                     .size
-                                  //                     .width *
-                                  //                 0.7,
-                                  //             child: Stack(
-                                  //               children: [
-                                  //                 Padding(
-                                  //                   padding:
-                                  //                       const EdgeInsets.all(
-                                  //                           8.0),
-                                  //                   child: Column(
-                                  //                     crossAxisAlignment:
-                                  //                         CrossAxisAlignment
-                                  //                             .start,
-                                  //                     mainAxisSize:
-                                  //                         MainAxisSize.min,
-                                  //                     children: [
-                                  //                       Text(
-                                  //                         'Filter',
-                                  //                         style: GoogleFonts.jost(
-                                  //                             textStyle: const TextStyle(
-                                  //                                 fontSize: 20,
-                                  //                                 fontWeight:
-                                  //                                     FontWeight
-                                  //                                         .bold)),
-                                  //                       ),
-                                  //                       const SizedBox(
-                                  //                         height: 20,
-                                  //                       ),
-                                  //                       Text('Difficulty Level',
-                                  //                           style: GoogleFonts.jost(
-                                  //                               textStyle:
-                                  //                                   const TextStyle(
-                                  //                                       fontSize:
-                                  //                                           16,
-                                  //                                       color:
-                                  //                                           lightGreyTextColor))),
-                                  //                       const SizedBox(
-                                  //                         height: 10,
-                                  //                       ),
-                                  //                       ConstrainedBox(
-                                  //                         constraints:
-                                  //                             const BoxConstraints(
-                                  //                                 maxHeight:
-                                  //                                     30),
-                                  //                         child:
-                                  //                             ListView.builder(
-                                  //                                 itemCount:
-                                  //                                     _filterDifficultiesList
-                                  //                                         .length,
-                                  //                                 scrollDirection:
-                                  //                                     Axis
-                                  //                                         .horizontal,
-                                  //                                 itemBuilder:
-                                  //                                     (context,
-                                  //                                             index) =>
-                                  //                                         Container(
-                                  //                                           alignment:
-                                  //                                               Alignment.center,
-                                  //                                           padding:
-                                  //                                               const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-                                  //                                           margin:
-                                  //                                               const EdgeInsets.only(right: 10),
-                                  //                                           decoration:
-                                  //                                               BoxDecoration(color: _levelDifficultiesColorsList[index], borderRadius: const BorderRadius.all(Radius.circular(20))),
-                                  //                                           child:
-                                  //                                               Text(
-                                  //                                             _filterDifficultiesList[index],
-                                  //                                             style: GoogleFonts.jost(textStyle: const TextStyle(color: Colors.black)),
-                                  //                                           ),
-                                  //                                         )),
-                                  //                       )
-                                  //                     ],
-                                  //                   ),
-                                  //                 ),
-                                  //                 Positioned(
-                                  //                   top: 0,
-                                  //                   right: 0,
-                                  //                   child: IconButton(
-                                  //                       onPressed: () {
-                                  //                         Navigator.pop(
-                                  //                             context);
-                                  //                       },
-                                  //                       icon: const Icon(
-                                  //                           Icons.close)),
-                                  //                 )
-                                  //               ],
-                                  //             ),
-                                  //           ),
-                                  //         ));
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) => Dialog(
+                                            child: SizedBox(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.7,
+                                              child: Stack(
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Text(
+                                                          'Filter',
+                                                          style: GoogleFonts.jost(
+                                                              textStyle: const TextStyle(
+                                                                  fontSize: 20,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold)),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 20,
+                                                        ),
+                                                        Text('Difficulty Level',
+                                                            style: GoogleFonts.jost(
+                                                                textStyle:
+                                                                    const TextStyle(
+                                                                        fontSize:
+                                                                            16,
+                                                                        color:
+                                                                            lightGreyTextColor))),
+                                                        const SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                        ConstrainedBox(
+                                                          constraints:
+                                                              const BoxConstraints(
+                                                                  maxHeight:
+                                                                      30),
+                                                          child:
+                                                              ListView.builder(
+                                                                  itemCount:
+                                                                      _filterDifficultiesList
+                                                                          .length,
+                                                                  scrollDirection:
+                                                                      Axis
+                                                                          .horizontal,
+                                                                  itemBuilder:
+                                                                      (context,
+                                                                              index) =>
+                                                                          Container(
+                                                                            alignment:
+                                                                                Alignment.center,
+                                                                            padding:
+                                                                                const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+                                                                            margin:
+                                                                                const EdgeInsets.only(right: 10),
+                                                                            decoration:
+                                                                                BoxDecoration(color: _levelDifficultiesColorsList[index], borderRadius: const BorderRadius.all(Radius.circular(20))),
+                                                                            child:
+                                                                                Text(
+                                                                              _filterDifficultiesList[index],
+                                                                              style: GoogleFonts.jost(textStyle: const TextStyle(color: Colors.black)),
+                                                                            ),
+                                                                          )),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Positioned(
+                                                    top: 0,
+                                                    right: 0,
+                                                    child: IconButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        icon: const Icon(
+                                                            Icons.close)),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ));
                                 },
                               )),
                         ),
@@ -309,6 +309,7 @@ class _MainScreenCardListState extends State<MainScreenCardList>
                     Opacity(
                       opacity: _opacity.value,
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
                               margin: const EdgeInsets.only(left: 20, top: 30),
@@ -317,13 +318,13 @@ class _MainScreenCardListState extends State<MainScreenCardList>
                                   text: TextSpan(
                                       style: GoogleFonts.amiri(
                                         textStyle: const TextStyle(
-                                            fontSize: 55,
+                                            fontSize: 45,
                                             color: Colors.black,
                                             height: 0.3),
                                       ),
                                       children: [
                                         TextSpan(
-                                            text: 'Choose',
+                                            text: S.of(context).mainSloganWord1,
                                             style: GoogleFonts.amiri()),
                                         const WidgetSpan(
                                             child: SizedBox(
@@ -335,24 +336,25 @@ class _MainScreenCardListState extends State<MainScreenCardList>
                                                 color: lightGreyTextColor,
                                                 fontStyle: FontStyle.italic),
                                           ),
-                                          text: 'Your',
+                                          text: S.of(context).mainSloganWord2,
                                         ),
                                         const WidgetSpan(
                                             child: SizedBox(
                                           width: 20,
                                         )),
                                         TextSpan(
-                                            text: 'Card',
+                                            text: S.of(context).mainSloganWord3,
                                             style: GoogleFonts.amiri()),
                                       ]))),
-                          const SizedBox(
-                            height: 10,
-                          ),
+                          // const SizedBox(
+                          //   height: 10,
+                          // ),
                           AnimatedGradientText(
                             isVisible: true,
                             color: Colors.grey.withOpacity(0.1),
-                            text:
-                                'Click on card to start your learning journey!',
+                            text: S
+                                .of(context)
+                                .clickOnCardToStartYourLearningJourney,
                           ),
                         ],
                       ),
@@ -887,327 +889,3 @@ class StatsWidget extends StatelessWidget {
     );
   }
 }
-
-// class TransformWidget extends StatefulWidget {
-//   final int index;
-//   final List<Map> transformList;
-//   final Animation<Offset> animationController;
-//   final AnimationController controller;
-//   final bool translateAnimation;
-//   final bool isSideMenuOpened;
-//   final AnimationController localController;
-//   final Function(int idx) startChooseCardAnimation;
-//   final VoidCallback returnCardBackAnimation;
-//   final int chosenIndex;
-//   final bool isCardChosen;
-
-//   const TransformWidget(
-//       {super.key,
-//       required this.index,
-//       required this.transformList,
-//       required this.animationController,
-//       required this.translateAnimation,
-//       required this.isSideMenuOpened,
-//       required this.controller,
-//       required this.localController,
-//       required this.startChooseCardAnimation,
-//       required this.returnCardBackAnimation,
-//       required this.chosenIndex,
-//       required this.isCardChosen});
-
-//   @override
-//   State<TransformWidget> createState() => _TransformWidgetState();
-// }
-
-// class _TransformWidgetState extends State<TransformWidget>
-//     with TickerProviderStateMixin {
-//   late Animation<Offset> _moveTopAnimation;
-//   late Animation<double> _moveRotateAnimation;
-//   late Animation<double> _scaleAnimation;
-//   late Animation<Offset> _moveUpAnimationLast;
-//   late Animation<Offset> _moveDownAllCardAnimation;
-//   late Animation<Offset> _moveUpChosenCardAnimation;
-//   late Animation<double> _animatedWidth;
-//   late Animation<double> _animatedLeft;
-
-//   final double defaultTop = 30.0;
-//   bool get isTrue => widget.index == widget.chosenIndex;
-
-//   double get screenSizeWidth =>
-//       WidgetsBinding.instance.window.physicalSize.width /
-//       WidgetsBinding.instance.window.devicePixelRatio;
-//   double get screenSizeHeight =>
-//       WidgetsBinding.instance.window.physicalSize.height /
-//       WidgetsBinding.instance.window.devicePixelRatio;
-
-//   double get currentWidth =>
-//       screenSizeWidth * widget.transformList[widget.index]['width'];
-//   double get lastCardWidth =>
-//       screenSizeWidth * widget.transformList[transformList.length - 1]['width'];
-//   double get nextWidth => (widget.index + 1 != widget.transformList.length)
-//       ? screenSizeWidth * widget.transformList[widget.index + 1]['width']
-//       : screenSizeWidth * widget.transformList[0]['width'];
-//   double get scaleFactor => nextWidth / currentWidth;
-
-//   double get moveNumber =>
-//       widget.index * widget.transformList[widget.index]['top'] * defaultTop;
-//   double get moveNumberNext => (widget.index + 1 != widget.transformList.length)
-//       ? (widget.index + 1) *
-//           widget.transformList[widget.index + 1]['top'] *
-//           defaultTop
-//       : screenSizeHeight;
-
-//   double get upLastNumber => (widget.index + 1 != widget.transformList.length)
-//       ? 0
-//       : -(screenSizeHeight * 1.45) -
-//           widget.transformList[0]['top'] * defaultTop;
-
-//   int get num => widget.isSideMenuOpened ? 270 : 180;
-
-//   @override
-//   void initState() {
-//     super.initState();
-
-//     _animatedWidth = Tween<double>(
-//             begin: currentWidth, end: isTrue ? lastCardWidth : currentWidth)
-//         .animate(CurvedAnimation(
-//       parent: widget.localController,
-//       curve: const Interval(0.0, 1, curve: Curves.easeIn),
-//     ));
-
-//     _animatedLeft = Tween<double>(
-//             begin: currentWidth, end: isTrue ? lastCardWidth : currentWidth)
-//         .animate(CurvedAnimation(
-//       parent: widget.localController,
-//       curve: const Interval(0.0, 1, curve: Curves.easeIn),
-//     ));
-//     _moveDownAllCardAnimation =
-//         Tween<Offset>(begin: Offset.zero, end: const Offset(0, 200))
-//             .animate(CurvedAnimation(
-//       parent: widget.localController,
-//       curve: const Interval(0.0, 1, curve: Curves.easeIn),
-//     ));
-
-//     _moveUpChosenCardAnimation = Tween<Offset>(
-//             begin: Offset.zero, end: Offset(0, defaultTop - moveNumber))
-//         .animate(CurvedAnimation(
-//       parent: widget.localController,
-//       curve: const Interval(0.0, 1, curve: Curves.easeIn),
-//     ));
-
-//     _moveTopAnimation = Tween<Offset>(
-//       begin: Offset.zero,
-//       end: Offset(0, moveNumberNext - moveNumber),
-//     ).animate(CurvedAnimation(
-//       parent: widget.controller,
-//       curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
-//     ));
-
-//     _moveUpAnimationLast = Tween<Offset>(
-//       begin: Offset.zero,
-//       end: Offset(0, upLastNumber),
-//     ).animate(CurvedAnimation(
-//       parent: widget.controller,
-//       curve: const Interval(0.5, 1, curve: Curves.easeIn),
-//     ));
-
-//     _moveRotateAnimation = Tween<double>(
-//       begin: widget.transformList[widget.index]['rotate'] / num * math.pi,
-//       end: (widget.index + 1 == widget.transformList.length)
-//           ? widget.transformList[0]['rotate'] / num * math.pi
-//           : widget.transformList[widget.index + 1]['rotate'] / num * math.pi,
-//     ).animate(widget.controller);
-
-//     _scaleAnimation = Tween<double>(
-//       begin: 1.0,
-//       end: scaleFactor,
-//     ).animate(CurvedAnimation(
-//       parent: widget.controller,
-//       curve: const Interval(0.0, 0.3, curve: Curves.easeIn),
-//     ));
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     Matrix4 matrix;
-
-//     if (isTrue) {
-//       matrix = Matrix4.identity();
-//     } else {
-//       matrix = Matrix4.identity()
-//         ..setEntry(3, 2, 0.001)
-//         ..rotateX(_moveRotateAnimation.value);
-//     }
-
-//     return AnimatedPositioned(
-//       duration: Durations.short1,
-//       width: _animatedWidth.value,
-//       top: moveNumber,
-//       left: isTrue
-//           ? (MediaQuery.of(context).size.width - lastCardWidth) / 2
-//           : (MediaQuery.of(context).size.width - currentWidth) / 2,
-//       child: AnimatedBuilder(
-//         animation: widget.localController,
-//         builder: (context, child) {
-//           return Transform.translate(
-//             offset: !isTrue ? _moveDownAllCardAnimation.value : Offset.zero,
-//             child: Transform.translate(
-//                 offset: isTrue ? _moveUpChosenCardAnimation.value : Offset.zero,
-//                 child: child),
-//           );
-//         },
-//         child: Transform(
-//           alignment: Alignment.center,
-//           transform: matrix,
-//           child: GestureDetector(
-//             onTap: () {
-//               // widget.isCardChosen ? widget.returnCardBackAnimation() : widget.startChooseCardAnimation(widget.index);
-//               Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                       builder: (context) => const CardDescrScreen()));
-//             },
-//             child: Container(
-//               padding: const EdgeInsets.all(10),
-//               height: 200,
-//               decoration: BoxDecoration(
-//                   color: transformListData[widget.index]['color'],
-//                   borderRadius: const BorderRadius.all(Radius.circular(10)),
-//                   boxShadow: const [
-//                     BoxShadow(
-//                         blurRadius: 1.0,
-//                         spreadRadius: 3.0,
-//                         color: Colors.black12),
-//                   ]),
-//               child: Stack(
-//                 fit: StackFit.expand,
-//                 children: [
-//                   Row(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       SizedBox(
-//                         width: currentWidth * 0.75,
-//                         child: Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text(
-//                               transformListData[widget.index]['title'],
-//                               style: GoogleFonts.amiri(
-//                                   textStyle: const TextStyle(fontSize: 22)),
-//                             ),
-//                             Text(
-//                               transformListData[widget.index]['descr'],
-//                               style: GoogleFonts.jost(),
-//                             )
-//                           ],
-//                         ),
-//                       ),
-//                       SizedBox(
-//                         width: currentWidth * 0.16,
-//                         child: CircleAvatar(
-//                           backgroundColor: transformListData[widget.index]
-//                               ['circleColor'],
-//                           radius: currentWidth * 0.1,
-//                           child: Image.asset(
-//                               transformListData[widget.index]['imageIcon']),
-//                         ),
-//                       )
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class CardBuilder extends StatelessWidget {
-//   const CardBuilder(
-//       {super.key,
-//       required this.transformList,
-//       required this.index,
-//       required this.widthOfCard,
-//       required this.isSideMenuOpened,
-//       required this.moveRotateAnimation,
-//       required this.startChooseCardAnimation,
-//       required this.returnCardBackAnimation,
-//       required this.isCardChosen});
-
-//   final List<Map> transformList;
-//   final int index;
-//   final double widthOfCard;
-//   final bool isSideMenuOpened;
-//   final Animation<double> moveRotateAnimation;
-//   final void Function(int) startChooseCardAnimation;
-//   final VoidCallback returnCardBackAnimation;
-//   final bool isCardChosen;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     Matrix4 matrix = Matrix4.identity();
-
-//     matrix
-//       ..setEntry(3, 2, 0.001)
-//       ..rotateX(moveRotateAnimation.value);
-
-//     return Transform(
-//       alignment: Alignment.center,
-//       transform: matrix,
-//       child: GestureDetector(
-//         onTap: () {
-//           // isCardChosen ? returnCardBackAnimation() : startChooseCardAnimation(index);
-//           // Navigator.push(context, MaterialPageRoute(builder: (context) => CardDescrScreen()));
-//         },
-//         child: Container(
-//           padding: const EdgeInsets.all(10),
-//           height: 200,
-//           decoration: BoxDecoration(
-//               color: transformListData[index]['color'],
-//               borderRadius: const BorderRadius.all(Radius.circular(10)),
-//               boxShadow: const [
-//                 BoxShadow(
-//                     blurRadius: 1.0, spreadRadius: 3.0, color: Colors.black12),
-//               ]),
-//           child: Stack(
-//             fit: StackFit.expand,
-//             children: [
-//               Row(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   SizedBox(
-//                     width: widthOfCard * 0.75,
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Text(
-//                           transformListData[index]['title'],
-//                           style: GoogleFonts.amiri(
-//                               textStyle: const TextStyle(fontSize: 22)),
-//                         ),
-//                         Text(
-//                           transformListData[index]['descr'],
-//                           style: GoogleFonts.jost(),
-//                         )
-//                       ],
-//                     ),
-//                   ),
-//                   SizedBox(
-//                     width: widthOfCard * 0.16,
-//                     child: CircleAvatar(
-//                       backgroundColor: transformListData[index]['circleColor'],
-//                       radius: widthOfCard * 0.1,
-//                       child: Image.asset(transformListData[index]['imageIcon']),
-//                     ),
-//                   )
-//                 ],
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }

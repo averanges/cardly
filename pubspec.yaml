@@ -71,3 +71,5 @@ flutter:
     - assets/images/shapes.riv
     - assets/images/button.riv
     - .env
+flutter_intl:
+  enabled: true
