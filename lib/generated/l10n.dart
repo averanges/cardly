@@ -339,6 +339,256 @@ class S {
       args: [],
     );
   }
+
+  /// `Translation Language`
+  String get translationLanguage {
+    return Intl.message(
+      'Translation Language',
+      name: 'translationLanguage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pick language displayed as basic language`
+  String get pickLanguageDisplayedAsBasicLanguage {
+    return Intl.message(
+      'Pick language displayed as basic language',
+      name: 'pickLanguageDisplayedAsBasicLanguage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Learning Target Language`
+  String get learningTargetLanguage {
+    return Intl.message(
+      'Learning Target Language',
+      name: 'learningTargetLanguage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pick language you would like to learn`
+  String get pickLanguageYouWouldLikeToLearn {
+    return Intl.message(
+      'Pick language you would like to learn',
+      name: 'pickLanguageYouWouldLikeToLearn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back`
+  String get back {
+    return Intl.message(
+      'Back',
+      name: 'back',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Finish`
+  String get finish {
+    return Intl.message(
+      'Finish',
+      name: 'finish',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `One more question...`
+  String get oneMoreQuestionHint {
+    return Intl.message(
+      'One more question...',
+      name: 'oneMoreQuestionHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tell us a little about yourself...you can skip this(:`
+  String get tellUsALittleAboutYourselfyouCanSkipThis {
+    return Intl.message(
+      'Tell us a little about yourself...you can skip this(:',
+      name: 'tellUsALittleAboutYourselfyouCanSkipThis',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your Name...`
+  String get nameHint {
+    return Intl.message(
+      'Your Name...',
+      name: 'nameHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Continue`
+  String get continueButton {
+    return Intl.message(
+      'Continue',
+      name: 'continueButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose Target Language`
+  String get chooseTargetLanguage {
+    return Intl.message(
+      'Choose Target Language',
+      name: 'chooseTargetLanguage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create new account`
+  String get createNewAccount {
+    return Intl.message(
+      'Create new account',
+      name: 'createNewAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `It will allow you save your progress.`
+  String get itWillAllowYouSaveYourProgress {
+    return Intl.message(
+      'It will allow you save your progress.',
+      name: 'itWillAllowYouSaveYourProgress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not allowed in Guest Mode`
+  String get notAllowedInGuestMode {
+    return Intl.message(
+      'Not allowed in Guest Mode',
+      name: 'notAllowedInGuestMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Personal Details`
+  String get personalDetails {
+    return Intl.message(
+      'Personal Details',
+      name: 'personalDetails',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manage your personal details below.`
+  String get manageYourPersonalDetailsBelow {
+    return Intl.message(
+      'Manage your personal details below.',
+      name: 'manageYourPersonalDetailsBelow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change Password`
+  String get changePassword {
+    return Intl.message(
+      'Change Password',
+      name: 'changePassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You can set a new password for you account below.`
+  String get youCanSetANewPasswordForYouAccountBelow {
+    return Intl.message(
+      'You can set a new password for you account below.',
+      name: 'youCanSetANewPasswordForYouAccountBelow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change you private password.`
+  String get changeYouPrivatePassword {
+    return Intl.message(
+      'Change you private password.',
+      name: 'changeYouPrivatePassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete your account`
+  String get deleteYourAccount {
+    return Intl.message(
+      'Delete your account',
+      name: 'deleteYourAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete your account permanently. Action cannot be undone.`
+  String get deleteYourAccountPermanentlyActionCannotBeUndone {
+    return Intl.message(
+      'Delete your account permanently. Action cannot be undone.',
+      name: 'deleteYourAccountPermanentlyActionCannotBeUndone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete account?`
+  String get deleteAccount {
+    return Intl.message(
+      'Delete account?',
+      name: 'deleteAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to delete your account? This action can not be undone.`
+  String get areYouSureYouWantToDeleteYourAccountThis {
+    return Intl.message(
+      'Are you sure you want to delete your account? This action can not be undone.',
+      name: 'areYouSureYouWantToDeleteYourAccountThis',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get delete {
+    return Intl.message(
+      'Delete',
+      name: 'delete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get cancel {
+    return Intl.message(
+      'Cancel',
+      name: 'cancel',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -1,11 +1,13 @@
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:sound/features/chat/view_model/auth_view_model.dart';
 import 'package:sound/features/chat/view_model/global_user_view_model.dart';
+import 'package:sound/generated/l10n.dart';
 import 'package:sound/utils/colors.dart';
 
 class NewUserProfileSetPage extends StatefulWidget {
@@ -33,6 +35,9 @@ class _NewUserProfileSetPageState extends State<NewUserProfileSetPage>
   bool _isFinishLoading = false;
   @override
   void initState() {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      systemNavigationBarColor: backgroundColor.withOpacity(0.8),
+    ));
     _tabController = TabController(length: _tabsList.length, vsync: this)
       ..addListener(() => setState(() {}));
     super.initState();
@@ -52,13 +57,38 @@ class _NewUserProfileSetPageState extends State<NewUserProfileSetPage>
       length: _tabsList.length,
       child: Scaffold(
         appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(120),
+          preferredSize: const Size.fromHeight(80),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: AppBar(
               backgroundColor: backgroundColor,
               scrolledUnderElevation: 0,
               leadingWidth: 45,
+              bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: List.generate(
+                        3,
+                        (int index) => Flexible(
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(20)),
+                                    color: _tabController.index > index &&
+                                            _tabController.index == 1
+                                        ? customGreenColor
+                                        : _tabController.index > index &&
+                                                _tabController.index == 2
+                                            ? primaryPurpleColor
+                                            : lightGreyTextColor),
+                                margin: const EdgeInsets.only(
+                                    left: 10, right: 10, top: 5),
+                                height: 4,
+                              ),
+                            )),
+                  )),
               leading: CircleAvatar(
                 backgroundColor: customButtonColor,
                 child: IconButton(
@@ -74,46 +104,6 @@ class _NewUserProfileSetPageState extends State<NewUserProfileSetPage>
               title: Image.asset(
                 'assets/images/cardly.png',
                 width: 100,
-              ),
-              bottom: PreferredSize(
-                preferredSize: Size.zero,
-                child: IgnorePointer(
-                  child: TabBar(
-                      controller: _tabController,
-                      indicatorColor: _tabController.index == 0
-                          ? customButtonColor
-                          : _tabController.index == 1
-                              ? customGreenColor
-                              : primaryPurpleColor,
-                      tabs: _tabsList
-                          .map((element) => Tab(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      element['icon'],
-                                    ),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    Text(
-                                      element['title'],
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.jost(
-                                          color: lightGreyTextColor,
-                                          shadows: [
-                                            Shadow(
-                                                blurRadius: 5.0,
-                                                color: Colors.white
-                                                    .withOpacity(0.15),
-                                                offset: const Offset(0, 2))
-                                          ]),
-                                    ),
-                                  ],
-                                ),
-                              ))
-                          .toList()),
-                ),
               ),
             ),
           ),
@@ -168,7 +158,7 @@ class _NewUserProfileSetPageState extends State<NewUserProfileSetPage>
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
                                   children: [
-                                    Text('Continue',
+                                    Text(S.of(context).continueButton,
                                         style: GoogleFonts.jost(
                                           color: Colors.white,
                                         )),
@@ -186,10 +176,10 @@ class _NewUserProfileSetPageState extends State<NewUserProfileSetPage>
                           height: 10,
                         ),
                         Text(
-                          'Translation Language',
+                          S.of(context).translationLanguage,
                           style: GoogleFonts.jost(fontSize: 24),
                         ),
-                        Text('Pick language displayed as basic language',
+                        Text(S.of(context).pickLanguageDisplayedAsBasicLanguage,
                             style: GoogleFonts.jost(color: lightGreyTextColor)),
                         Expanded(
                           child: ListView.builder(
@@ -276,7 +266,7 @@ class _NewUserProfileSetPageState extends State<NewUserProfileSetPage>
                                     MainAxisAlignment.spaceAround,
                                 children: [
                                   const Icon(Iconsax.arrow_left),
-                                  Text('Back',
+                                  Text(S.of(context).back,
                                       style: GoogleFonts.jost(
                                         color: Colors.black,
                                       )),
@@ -315,7 +305,7 @@ class _NewUserProfileSetPageState extends State<NewUserProfileSetPage>
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceAround,
                                 children: [
-                                  Text('Continue',
+                                  Text(S.of(context).continueButton,
                                       style: GoogleFonts.jost(
                                         color: Colors.white,
                                       )),
@@ -333,10 +323,10 @@ class _NewUserProfileSetPageState extends State<NewUserProfileSetPage>
                         height: 10,
                       ),
                       Text(
-                        'Learning Target Language',
+                        S.of(context).learningTargetLanguage,
                         style: GoogleFonts.jost(fontSize: 24),
                       ),
-                      Text('Pick language you would like to learn',
+                      Text(S.of(context).pickLanguageYouWouldLikeToLearn,
                           style: GoogleFonts.jost(color: lightGreyTextColor)),
                       Expanded(
                         child: ListView.builder(
@@ -422,7 +412,7 @@ class _NewUserProfileSetPageState extends State<NewUserProfileSetPage>
                                       MainAxisAlignment.spaceAround,
                                   children: [
                                     const Icon(Iconsax.arrow_left),
-                                    Text('Back',
+                                    Text(S.of(context).back,
                                         style: GoogleFonts.jost(
                                           color: Colors.black,
                                         )),
@@ -472,7 +462,7 @@ class _NewUserProfileSetPageState extends State<NewUserProfileSetPage>
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceAround,
                                         children: [
-                                          Text('Finish',
+                                          Text(S.of(context).finish,
                                               style: GoogleFonts.jost(
                                                 color: Colors.white,
                                               )),
@@ -490,11 +480,13 @@ class _NewUserProfileSetPageState extends State<NewUserProfileSetPage>
                           height: 10,
                         ),
                         Text(
-                          'One more question...',
+                          S.of(context).oneMoreQuestionHint,
                           style: GoogleFonts.jost(fontSize: 24),
                         ),
                         Text(
-                            'Tell us a little about yourself...you can skip this(:',
+                            S
+                                .of(context)
+                                .tellUsALittleAboutYourselfyouCanSkipThis,
                             style: GoogleFonts.jost(color: lightGreyTextColor)),
                         const SizedBox(
                           height: 20,
@@ -527,7 +519,7 @@ class _NewUserProfileSetPageState extends State<NewUserProfileSetPage>
                                   style: BorderStyle.solid,
                                   color: Colors.black12,
                                 )),
-                                hintText: 'Your Name...',
+                                hintText: S.of(context).nameHint,
                                 hintStyle: GoogleFonts.jost(
                                     color: lightGreyTextColor)),
                           ),

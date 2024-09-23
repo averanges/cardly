@@ -1,10 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
-import 'package:skeleton_text/skeleton_text.dart';
 import 'package:sound/features/chat/view_model/auth_view_model.dart';
 import 'package:sound/generated/l10n.dart';
 import 'package:sound/pages/entry_point.dart';
@@ -22,22 +21,25 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _animation;
-  final bool _isNavigationLoading = false;
   bool _isLoginOpened = false;
   bool _isForgotPasswordOpened = false;
 
+  late AnimationController _opactityController;
+  final GlobalKey<ScaffoldState> _scaffoldStateKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
-    // SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    //   systemNavigationBarColor: Colors.white,
-    // ));
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      systemNavigationBarColor: Color.fromRGBO(251, 174, 51, 0.8),
+    ));
 
     _controller =
         AnimationController(vsync: this, duration: const Duration(seconds: 2))
           ..repeat(reverse: true);
+    _opactityController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
     _animation = ColorTween(begin: Colors.white, end: Colors.black12)
         .animate(_controller);
     super.initState();
@@ -50,7 +52,18 @@ class _StartScreenState extends State<StartScreen>
 
   @override
   void didChangeDependencies() {
-    precacheImage(const AssetImage('assets/images/robot.jpg'), context);
+    const image1 = AssetImage('assets/images/robot.webp');
+    const image2 = AssetImage('assets/images/cardly.png');
+    Future.wait([
+      precacheImage(image1, context),
+      precacheImage(image2, context),
+    ]).then((_) {
+      setState(() {
+        _opactityController.forward();
+      });
+    }).catchError((error) {
+      debugPrint('Error loading images: $error');
+    });
     super.didChangeDependencies();
   }
 
@@ -63,181 +76,184 @@ class _StartScreenState extends State<StartScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: _scaffoldStateKey,
         backgroundColor: const Color.fromRGBO(251, 174, 51, 1),
-        body: Stack(
-          children: [
-            AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(0, _controller.value * 10),
-                    child: Container(
-                      alignment: Alignment.topLeft,
-                      decoration: const BoxDecoration(
-                          image: DecorationImage(
-                              image: AssetImage('assets/images/robot.webp'))),
-                    ),
-                  );
-                }),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                    alignment: Alignment.topLeft,
-                    child: Image.asset(
-                      'assets/images/cardly.png',
-                      width: 250,
-                      height: 250,
-                    )),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        body: AnimatedBuilder(
+            animation: _opactityController,
+            builder: (context, child) {
+              return Opacity(
+                opacity: _opactityController.value,
+                child: Stack(
                   children: [
-                    Container(
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        boxShadow: [
-                          BoxShadow(
-                              blurRadius: 1,
-                              spreadRadius: 1,
-                              color: Colors.black12,
-                              offset: Offset(0, 1))
-                        ],
-                        color: customButtonColor,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      child: IconButton(
-                        icon: const Icon(
-                          FontAwesomeIcons.google,
-                          color: lightGreyTextColor,
-                        ),
-                        onPressed: () {},
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    GestureDetector(
-                      onTap: () async {
-                        // _isNavigationLoading = true;
-                        // setState(() {});
-
-                        // await Navigator.of(context)
-                        //     .push(customPageRouteBuild(const EntryPoint()));
-
-                        // if (mounted) {
-                        //   setState(() {
-                        //     _isNavigationLoading = false;
-                        //   });
-                        // }
-                        await _customModalBottomSheet(context, _isLoginOpened);
-                      },
+                    RepaintBoundary(
                       child: AnimatedBuilder(
                           animation: _controller,
                           builder: (context, child) {
-                            return SkeletonAnimation(
-                              shimmerColor: _isNavigationLoading
-                                  ? customButtonColor
-                                  : Colors.transparent,
-                              shimmerDuration: 3000,
+                            return Transform.translate(
+                              offset: Offset(0, _controller.value * 10),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 5, vertical: 20),
-                                width: MediaQuery.of(context).size.width * 0.7,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.white,
-                                        style: BorderStyle.solid),
-                                    boxShadow: [
-                                      BoxShadow(
-                                          blurRadius: 1,
-                                          spreadRadius: 1,
-                                          color: _animation.value!,
-                                          offset: const Offset(0, 1))
-                                    ],
-                                    color: Colors.black,
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(10))),
-                                margin: const EdgeInsets.only(bottom: 60),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      S.of(context).getStarted,
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    const Icon(
-                                      FontAwesomeIcons.locationArrow,
-                                      color: Colors.white,
-                                    )
-                                  ],
-                                ),
+                                alignment: Alignment.topLeft,
+                                decoration: const BoxDecoration(
+                                    image: DecorationImage(
+                                        image: AssetImage(
+                                            'assets/images/robot.webp'))),
                               ),
                             );
                           }),
                     ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: Container(
+                              alignment: Alignment.topLeft,
+                              child: Image.asset(
+                                'assets/images/cardly.png',
+                              )),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              decoration: const BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                boxShadow: [
+                                  BoxShadow(
+                                      blurRadius: 1,
+                                      spreadRadius: 1,
+                                      color: Colors.black12,
+                                      offset: Offset(0, 1))
+                                ],
+                                color: customButtonColor,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              child: IconButton(
+                                icon: const Icon(
+                                  FontAwesomeIcons.google,
+                                  color: lightGreyTextColor,
+                                ),
+                                onPressed: () {},
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                _scaffoldStateKey.currentState!.showBottomSheet(
+                                  (BuildContext context) {
+                                    return preCachedBottomSheet(_isLoginOpened);
+                                  },
+                                  backgroundColor: customButtonColor,
+                                );
+                              },
+                              child: RepaintBoundary(
+                                child: AnimatedBuilder(
+                                    animation: _controller,
+                                    builder: (context, child) {
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5, vertical: 20),
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.7,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.white,
+                                                style: BorderStyle.solid),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                  blurRadius: 1,
+                                                  spreadRadius: 1,
+                                                  color: _animation.value!,
+                                                  offset: const Offset(0, 1))
+                                            ],
+                                            color: Colors.black,
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(10))),
+                                        margin:
+                                            const EdgeInsets.only(bottom: 60),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              S.of(context).getStarted,
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontFamily: 'Jost'),
+                                            ),
+                                            const SizedBox(
+                                              width: 10,
+                                            ),
+                                            const Icon(
+                                              FontAwesomeIcons.locationArrow,
+                                              color: Colors.white,
+                                            )
+                                          ],
+                                        ),
+                                      );
+                                    }),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    )
                   ],
-                )
-              ],
-            )
-          ],
-        ));
+                ),
+              );
+            }));
   }
 
-  Future<dynamic> _customModalBottomSheet(
-      BuildContext context, bool isLoginOpened) {
-    return showModalBottomSheet(
-      isScrollControlled: true,
-      backgroundColor: customButtonColor,
-      context: context,
-      builder: (_) => StatefulBuilder(builder: (context, setModalState) {
-        return Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Stack(
-            children: [
-              _isForgotPasswordOpened
-                  ? RefreshPassword(
-                      voidCallback: () => setModalState(() {
-                            _isForgotPasswordOpened = false;
-                          }))
-                  : isLoginOpened
-                      ? RegistrationModalBottom(
-                          voidCallback: () {
-                            setModalState(() {
-                              isLoginOpened = !isLoginOpened;
-                            });
-                          },
-                        )
-                      : LoginModalBottom(
-                          openResetPsw: () => setModalState(() {
-                            _isForgotPasswordOpened = true;
-                          }),
-                          voidCallback: () {
-                            setModalState(() {
-                              isLoginOpened = !isLoginOpened;
-                            });
-                          },
-                        ),
-              Positioned(
-                  top: 0,
-                  right: 0,
-                  child: IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.close)))
-            ],
-          ),
-        );
-      }),
-    );
+  StatefulBuilder preCachedBottomSheet(bool isLoginOpened) {
+    return StatefulBuilder(builder: (context, setModalState) {
+      return Padding(
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Stack(
+          children: [
+            _isForgotPasswordOpened
+                ? RefreshPassword(
+                    voidCallback: () => setModalState(() {
+                          _isForgotPasswordOpened = false;
+                        }))
+                : isLoginOpened
+                    ? RegistrationModalBottom(
+                        voidCallback: () {
+                          setModalState(() {
+                            isLoginOpened = !isLoginOpened;
+                          });
+                        },
+                      )
+                    : LoginModalBottom(
+                        openResetPsw: () => setModalState(() {
+                          _isForgotPasswordOpened = true;
+                        }),
+                        voidCallback: () {
+                          setModalState(() {
+                            isLoginOpened = !isLoginOpened;
+                          });
+                        },
+                      ),
+            Positioned(
+                top: 0,
+                right: 0,
+                child: IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.close)))
+          ],
+        ),
+      );
+    });
   }
 }
 
@@ -269,18 +285,15 @@ class _RefreshPasswordState extends State<RefreshPassword> {
           children: [
             Text(
               S.of(context).forgotPassword,
-              style: GoogleFonts.jost(
-                  textStyle: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2)),
+              style: const TextStyle(
+                  fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2),
             ),
             const SizedBox(
               height: 10,
             ),
             Text(
               S.of(context).noNeedToWorryTellUsYourEmailAndWe,
-              style: GoogleFonts.jost(color: lightGreyTextColor),
+              style: const TextStyle(color: lightGreyTextColor),
               textAlign: TextAlign.center,
             ),
             const SizedBox(
@@ -290,21 +303,12 @@ class _RefreshPasswordState extends State<RefreshPassword> {
                 key: _key,
                 child: Column(
                   children: [
-                    TextFormField(
-                      validator: emailValidation,
+                    CustomTextFormField(
                       controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                          prefixIcon: const Icon(Iconsax.direct_inbox),
-                          hintText: S.of(context).emailHintWIthDots,
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          border: const OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20))),
-                          fillColor: Colors.black.withOpacity(0.05),
-                          filled: true),
+                      hintText: 'Email...',
+                      icon: Iconsax.direct_inbox,
+                      isPswField: false,
+                      validator: emailValidation,
                     ),
                     const SizedBox(
                       height: 10,
@@ -340,9 +344,8 @@ class _RefreshPasswordState extends State<RefreshPassword> {
                                 color: Colors.white,
                               )
                             : Text(S.of(context).resetPassword.toUpperCase(),
-                                style: GoogleFonts.jost(
-                                    textStyle: const TextStyle(
-                                        fontSize: 14, color: Colors.white))),
+                                style: const TextStyle(
+                                    fontSize: 14, color: Colors.white)),
                       ),
                     ),
                     const SizedBox(
@@ -352,18 +355,17 @@ class _RefreshPasswordState extends State<RefreshPassword> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(S.of(context).backToLogin,
-                            style: GoogleFonts.jost(
-                                textStyle: const TextStyle(
-                                    fontSize: 14, color: lightGreyTextColor))),
+                            style: const TextStyle(
+                                fontSize: 14, color: lightGreyTextColor)),
                         TextButton(
                             onPressed: () {
                               widget.voidCallback();
                             },
                             child: Text(S.of(context).signIn,
-                                style: GoogleFonts.jost(
-                                    textStyle: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold))))
+                                style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Jost')))
                       ],
                     )
                   ],
@@ -388,7 +390,6 @@ class RegistrationModalBottom extends StatefulWidget {
 }
 
 class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
-  final bool _isPasswordHidden = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPswController = TextEditingController();
@@ -410,11 +411,8 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
           children: [
             Text(
               S.of(context).registration,
-              style: GoogleFonts.jost(
-                  textStyle: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2)),
+              style: const TextStyle(
+                  fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2),
             ),
             const SizedBox(
               height: 20,
@@ -423,38 +421,32 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
                 key: _key,
                 child: Column(
                   children: [
-                    TextFormField(
-                      validator: emailValidation,
+                    CustomTextFormField(
                       controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                          prefixIcon: const Icon(Iconsax.direct_inbox),
-                          hintText: S.of(context).emailHintWIthDots,
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          border: const OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20))),
-                          fillColor: Colors.black.withOpacity(0.05),
-                          filled: true),
+                      hintText: 'Email...',
+                      icon: Iconsax.direct_inbox,
+                      isPswField: false,
+                      validator: emailValidation,
                     ),
-                    const SizedBox(
-                      height: 20,
+                    const Divider(
+                      color: lightGreyTextColor,
+                      thickness: 0.3,
                     ),
                     CustomTextFormField(
+                      isPswField: true,
                       icon: Iconsax.lock,
                       hintText: S.of(context).passwordHintWithDots,
-                      passwordController: _passwordController,
+                      controller: _passwordController,
                       validator: passwordValidation,
                     ),
                     const SizedBox(
                       height: 10,
                     ),
                     CustomTextFormField(
+                      isPswField: true,
                       icon: Iconsax.lock_1,
                       hintText: S.of(context).repeatPasswordHintWithDots,
-                      passwordController: _confirmPswController,
+                      controller: _confirmPswController,
                       validator: (value) => confirmPasswordValidation(
                           _passwordController.text, value!),
                     ),
@@ -466,7 +458,7 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
                               )
                             : Text(
                                 _authError,
-                                style: GoogleFonts.jost(color: Colors.red),
+                                style: const TextStyle(color: Colors.red),
                               )),
                     GestureDetector(
                       onTap: () async {
@@ -521,9 +513,8 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
                                 color: Colors.white,
                               )
                             : Text(S.of(context).signUp.toUpperCase(),
-                                style: GoogleFonts.jost(
-                                    textStyle: const TextStyle(
-                                        fontSize: 14, color: Colors.white))),
+                                style: const TextStyle(
+                                    fontSize: 14, color: Colors.white)),
                       ),
                     ),
                     const SizedBox(
@@ -533,18 +524,15 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(S.of(context).alreadyHaveAnAccount,
-                            style: GoogleFonts.jost(
-                                textStyle: const TextStyle(
-                                    fontSize: 14, color: lightGreyTextColor))),
+                            style: const TextStyle(
+                                fontSize: 14, color: lightGreyTextColor)),
                         TextButton(
                             onPressed: () {
                               widget.voidCallback();
                             },
                             child: Text(S.of(context).signIn,
-                                style: GoogleFonts.jost(
-                                    textStyle: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold))))
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold)))
                       ],
                     )
                   ],
@@ -557,18 +545,19 @@ class _RegistrationModalBottomState extends State<RegistrationModalBottom> {
 }
 
 class CustomTextFormField extends StatefulWidget {
-  const CustomTextFormField({
-    super.key,
-    required TextEditingController passwordController,
-    required this.validator,
-    required this.hintText,
-    required this.icon,
-  }) : _passwordController = passwordController;
+  const CustomTextFormField(
+      {super.key,
+      required this.controller,
+      required this.validator,
+      required this.hintText,
+      required this.icon,
+      required this.isPswField});
 
-  final TextEditingController _passwordController;
+  final TextEditingController controller;
   final String? Function(String?) validator;
   final String hintText;
   final IconData icon;
+  final bool isPswField;
 
   @override
   State<CustomTextFormField> createState() => _CustomTextFormFieldState();
@@ -581,17 +570,19 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
   Widget build(BuildContext context) {
     return TextFormField(
       obscureText: _isPasswordHidden,
-      controller: widget._passwordController,
+      controller: widget.controller,
       validator: widget.validator,
       decoration: InputDecoration(
           prefixIcon: Icon(widget.icon),
-          suffixIcon: IconButton(
-            icon: const Icon(Iconsax.eye),
-            onPressed: () {
-              _isPasswordHidden = !_isPasswordHidden;
-              setState(() {});
-            },
-          ),
+          suffixIcon: widget.isPswField
+              ? IconButton(
+                  icon: const Icon(Iconsax.eye),
+                  onPressed: () {
+                    _isPasswordHidden = !_isPasswordHidden;
+                    setState(() {});
+                  },
+                )
+              : null,
           hintText: widget.hintText,
           contentPadding:
               const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -615,15 +606,21 @@ class LoginModalBottom extends StatefulWidget {
 }
 
 class _LoginModalBottomState extends State<LoginModalBottom> {
-  bool _isPasswordHidden = true;
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
   bool _isLoading = false;
   String _authError = '';
+
+  @override
+  void initState() {
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    AuthViewModel authViewModel = Provider.of<AuthViewModel>(context);
     return Container(
       padding: const EdgeInsets.all(30),
       width: MediaQuery.of(context).size.width,
@@ -632,11 +629,11 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
         children: [
           Text(
             S.of(context).login,
-            style: GoogleFonts.jost(
-                textStyle: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2)),
+            style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+                fontFamily: 'Jost'),
           ),
           const SizedBox(
             height: 20,
@@ -645,60 +642,31 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
               key: _key,
               child: Column(
                 children: [
-                  TextFormField(
+                  CustomTextFormField(
                     controller: _emailController,
+                    hintText: 'Email...',
+                    icon: Iconsax.direct_inbox,
+                    isPswField: false,
                     validator: emailValidation,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                        prefixIcon: const Icon(Iconsax.direct_inbox),
-                        hintText: S.of(context).emailHintWIthDots,
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 20),
-                        border: const OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20))),
-                        fillColor: Colors.black.withOpacity(0.05),
-                        filled: true),
                   ),
                   const SizedBox(
                     height: 10,
                   ),
-                  TextFormField(
+                  CustomTextFormField(
                     controller: _passwordController,
+                    hintText: 'Password...',
+                    icon: Iconsax.lock,
+                    isPswField: true,
                     validator: passwordValidation,
-                    obscureText: _isPasswordHidden,
-                    decoration: InputDecoration(
-                        prefixIcon: const Icon(Iconsax.lock),
-                        suffixIcon: IconButton(
-                            icon: const Icon(
-                              Iconsax.eye,
-                            ),
-                            onPressed: () {
-                              _isPasswordHidden = !_isPasswordHidden;
-                              setState(() {});
-                            }),
-                        hintText: S.of(context).passwordHintWithDots,
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 20),
-                        border: const OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20))),
-                        fillColor: Colors.black.withOpacity(0.05),
-                        filled: true),
                   ),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: _authError.isEmpty
-                        ? const SizedBox(
-                            height: 10,
-                          )
-                        : Text(
-                            _authError,
-                            style: GoogleFonts.jost(color: Colors.red),
-                          ),
-                  ),
+                  _authError.isEmpty
+                      ? const SizedBox(
+                          height: 10,
+                        )
+                      : Text(
+                          _authError,
+                          style: const TextStyle(color: Colors.red),
+                        ),
                   Container(
                     alignment: Alignment.centerRight,
                     child: TextButton(
@@ -713,99 +681,102 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
                   const SizedBox(
                     height: 10,
                   ),
-                  GestureDetector(
-                    onTap: () async {
-                      _authError = '';
-                      if (authViewModel.isLoggedIn) {
-                        _authError = S.of(context).userAlreadyLoggedIn;
-                        setState(() {});
-                        Navigator.of(context)
-                            .push(customPageRouteBuild(const EntryPoint()));
-                        return;
-                      }
-                      if (mounted) {
-                        FocusScope.of(context).unfocus();
-                      }
-                      if (_key.currentState!.validate()) {
-                        try {
-                          _isLoading = true;
+                  Consumer<AuthViewModel>(
+                    builder: (context, value, child) => GestureDetector(
+                      onTap: () async {
+                        _authError = '';
+                        if (value.isLoggedIn) {
+                          _authError = S.of(context).userAlreadyLoggedIn;
                           setState(() {});
-                          await authViewModel.login(
-                              context: context,
-                              email: _emailController.text,
-                              psw: _passwordController.text);
-                        } on FirebaseAuthException catch (e) {
-                          _authError = e.message!;
-                        } catch (e) {
-                          _authError = S.of(context).anUnexpectedErrorOccurred;
+                          Navigator.of(context)
+                              .push(customPageRouteBuild(const EntryPoint()));
+                          return;
                         }
-                      }
-                      _isLoading = false;
-                      setState(() {});
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                          boxShadow: const [
-                            BoxShadow(
-                                color: lightGreyTextColor,
-                                blurRadius: 0.3,
-                                spreadRadius: 0.3,
-                                offset: Offset(0, 1))
-                          ],
-                          color: Colors.black,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(20)),
-                          border: Border.all(
-                              style: BorderStyle.solid, color: Colors.white)),
-                      child: _isLoading
-                          ? const CircularProgressIndicator(
-                              color: Colors.white,
-                            )
-                          : Text(S.of(context).signIn.toUpperCase(),
-                              style: GoogleFonts.jost(
-                                  textStyle: const TextStyle(
-                                      fontSize: 14, color: Colors.white))),
+                        if (mounted) {
+                          FocusScope.of(context).unfocus();
+                        }
+                        if (_key.currentState!.validate()) {
+                          try {
+                            _isLoading = true;
+                            setState(() {});
+                            await value.login(
+                                context: context,
+                                email: _emailController.text,
+                                psw: _passwordController.text);
+                          } on FirebaseAuthException catch (e) {
+                            _authError = e.message!;
+                          } catch (e) {
+                            _authError =
+                                S.of(context).anUnexpectedErrorOccurred;
+                          }
+                        }
+                        _isLoading = false;
+                        setState(() {});
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                            boxShadow: const [
+                              BoxShadow(
+                                  color: lightGreyTextColor,
+                                  blurRadius: 0.3,
+                                  spreadRadius: 0.3,
+                                  offset: Offset(0, 1))
+                            ],
+                            color: Colors.black,
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(20)),
+                            border: Border.all(
+                                style: BorderStyle.solid, color: Colors.white)),
+                        child: _isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : Text(S.of(context).signIn.toUpperCase(),
+                                style: const TextStyle(
+                                    fontSize: 14, color: Colors.white)),
+                      ),
                     ),
                   ),
                   const SizedBox(
                     height: 10,
                   ),
-                  GestureDetector(
-                    onTap: () async {
-                      if (authViewModel.isLoggedIn) {
-                        _authError = S.of(context).userAlreadyLoggedIn;
+                  Consumer<AuthViewModel>(
+                    builder: (context, value, child) => GestureDetector(
+                      onTap: () async {
+                        if (value.isLoggedIn) {
+                          _authError = S.of(context).userAlreadyLoggedIn;
 
-                        setState(() {});
-                        return;
-                      }
-                      await authViewModel.loginAsGuest(context);
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                          boxShadow: const [
-                            BoxShadow(
-                                color: lightGreyTextColor,
-                                blurRadius: 0.3,
-                                spreadRadius: 0.3,
-                                offset: Offset(0, 1))
-                          ],
-                          color: const Color.fromRGBO(251, 174, 51, 1),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(20)),
-                          border: Border.all(
-                              style: BorderStyle.solid, color: Colors.white)),
-                      child: Text(S.of(context).guestMode.toUpperCase(),
-                          style: GoogleFonts.jost(
-                              textStyle: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white,
-                                  fontStyle: FontStyle.italic))),
+                          setState(() {});
+                          return;
+                        }
+                        await value.loginAsGuest(context);
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                            boxShadow: const [
+                              BoxShadow(
+                                  color: lightGreyTextColor,
+                                  blurRadius: 0.3,
+                                  spreadRadius: 0.3,
+                                  offset: Offset(0, 1))
+                            ],
+                            color: const Color.fromRGBO(251, 174, 51, 1),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(20)),
+                            border: Border.all(
+                                style: BorderStyle.solid, color: Colors.white)),
+                        child: Text(S.of(context).guestMode.toUpperCase(),
+                            style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontStyle: FontStyle.italic)),
+                      ),
                     ),
                   ),
                   const SizedBox(
@@ -815,18 +786,17 @@ class _LoginModalBottomState extends State<LoginModalBottom> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(S.of(context).dontHaveAnAccountYet,
-                          style: GoogleFonts.jost(
-                              textStyle: const TextStyle(
-                                  fontSize: 14, color: lightGreyTextColor))),
+                          style: const TextStyle(
+                              fontSize: 14,
+                              color: lightGreyTextColor,
+                              fontFamily: 'Jost')),
                       TextButton(
                           onPressed: () {
                             widget.voidCallback();
                           },
                           child: Text(S.of(context).signUp,
-                              style: GoogleFonts.jost(
-                                  textStyle: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold))))
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold)))
                     ],
                   )
                 ],

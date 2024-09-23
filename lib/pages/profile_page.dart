@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:sound/features/chat/view_model/global_user_view_model.dart';
+import 'package:sound/generated/l10n.dart';
 import 'package:sound/models/language_model.dart';
 import 'package:sound/utils/colors.dart';
 
@@ -166,6 +167,9 @@ class _LanguageSearchAndChooseDialogState
   Widget build(BuildContext context) {
     return Dialog(
       child: Container(
+        decoration: const BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.all(Radius.circular(20))),
         padding: const EdgeInsets.all(15),
         width: MediaQuery.of(context).size.width * 0.8,
         height: MediaQuery.of(context).size.height * 0.6,
@@ -177,9 +181,10 @@ class _LanguageSearchAndChooseDialogState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Choose Target Language',
+                  S.of(context).chooseTargetLanguage,
                   style: GoogleFonts.jost(
-                      textStyle: const TextStyle(fontSize: 20)),
+                      textStyle: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.w300)),
                 ),
                 Transform.translate(
                   offset: const Offset(5, -10),
@@ -190,25 +195,6 @@ class _LanguageSearchAndChooseDialogState
                       icon: const Icon(Icons.close)),
                 )
               ],
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            TextField(
-              controller: _textEditingController,
-              decoration: const InputDecoration(
-                  border: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(20))),
-                  fillColor: customButtonColor,
-                  filled: true,
-                  suffixIcon: Icon(
-                    Icons.search,
-                    color: lightGreyTextColor,
-                  )),
-            ),
-            const SizedBox(
-              height: 20,
             ),
             Expanded(
               child: ListView.builder(
@@ -221,8 +207,16 @@ class _LanguageSearchAndChooseDialogState
                       setState(() {});
                     },
                     child: Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.only(bottom: 10.0, top: 10),
+                      margin: const EdgeInsets.only(top: 10),
+                      decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          gradient: LinearGradient(
+                              colors: [Colors.white, customButtonColor])),
+                      padding: const EdgeInsets.only(
+                        bottom: 10.0,
+                        top: 10,
+                        left: 10,
+                      ),
                       child: Row(mainAxisSize: MainAxisSize.max, children: [
                         CountryFlag.fromCountryCode(
                           _listLanguagesCopy[index].countryCode.toLowerCase(),

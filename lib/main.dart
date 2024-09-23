@@ -50,9 +50,12 @@ class MainApp extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.delegate.supportedLocales,
-        theme: ThemeData(scaffoldBackgroundColor: backgroundColor),
+        theme: ThemeData(
+            scaffoldBackgroundColor: backgroundColor,
+            textTheme:
+                const TextTheme(bodyMedium: TextStyle(fontFamily: 'Jost'))),
         debugShowCheckedModeBanner: false,
-        locale: globalUserViewModel.translationLanguage.locale,
+        // locale: globalUserViewModel.translationLanguage.locale,
         localeListResolutionCallback: (locales, supportedLocales) {
           if (locales != null && locales.isNotEmpty) {
             for (LanguageModel language

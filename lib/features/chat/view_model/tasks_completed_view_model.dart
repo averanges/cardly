@@ -38,11 +38,27 @@ class TasksCompletedViewModel extends ChangeNotifier {
   }
 
   void toggleProgress() {
-    final double progressStep = 1 / tasksCompletionMapsList.length + 0.01;
+    final double progressStep = 1 / _tasksCompletionMapsList.length + 0.01;
     _progress += progressStep;
     if (progress > 1) {
       _isChatCompletedSuccess = true;
     }
+    notifyListeners();
+  }
+
+  void addProgressForPictureDescription(int points) {
+    _progress += points / 100;
+    if (_progress > 1) {
+      _isChatCompletedSuccess = true;
+    }
+    notifyListeners();
+  }
+
+  void addProgressForLikeScore(int points) {
+    _progress += points / 100;
+    if (_progress > 1) {
+      _isChatCompletedSuccess = true;
+    } else {}
     notifyListeners();
   }
 

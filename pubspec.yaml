@@ -64,12 +64,16 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  fonts:
+    - family: Jost
+      fonts:
+        - asset: assets/fonts/Jost-Regular.ttf
+
   assets:
     - assets/images/
     - assets/animations/
-    - assets/images/Spline.png
-    - assets/images/shapes.riv
-    - assets/images/button.riv
     - .env
+
 flutter_intl:
   enabled: true

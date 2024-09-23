@@ -340,15 +340,15 @@ class _MainScreenCardListState extends State<MainScreenCardList>
                                         ),
                                         const WidgetSpan(
                                             child: SizedBox(
-                                          width: 20,
+                                          width: 10,
                                         )),
                                         TextSpan(
                                             text: S.of(context).mainSloganWord3,
                                             style: GoogleFonts.amiri()),
                                       ]))),
-                          // const SizedBox(
-                          //   height: 10,
-                          // ),
+                          const SizedBox(
+                            height: 10,
+                          ),
                           AnimatedGradientText(
                             isVisible: true,
                             color: Colors.grey.withOpacity(0.1),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:sound/features/chat/view_model/auth_view_model.dart';
+import 'package:sound/generated/l10n.dart';
 import 'package:sound/utils/colors.dart';
 
 class SideMenuItemsLayer extends StatelessWidget {
@@ -80,7 +81,7 @@ class SideMenuItemsLayer extends StatelessWidget {
                                     style: BorderStyle.solid,
                                     color: primaryPurpleColor)),
                             child: Text(
-                              'Guest Mode',
+                              S.of(context).guestMode,
                               style: GoogleFonts.jost(
                                   textStyle: const TextStyle(
                                       color: primaryPurpleColor)),

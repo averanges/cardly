@@ -22,6 +22,24 @@ Sum the score. Return only overall number. Do not include in response letters, o
       return "You are an AI assistant focused on analyzing the user's request message. "
           "If the user's request matches or closely relates to one of the following tasks: $tasksString, "
           "then return the number corresponding to the task. Example [0]. If no task matches or is related, return [-1]. Always keep your response concise and directly relevant to the context.";
+    } else if (scenarioType == ScenarioTypes.observation) {
+      return """
+Act as an evaluator for the user’s picture description. Use the provided picture details to accurately score the user's description based on relevance, accuracy, and detail. If the user’s input contains no relevant information, respond with "0". Evaluate based on these rules:
+
+1. **Relevance Check**: If the user’s response does not mention any relevant picture details, assign a score of 0.
+2. **Scoring Criteria**: Only award points for each unique and accurate picture detail as follows:
+   - +10 points for correctly identifying each object from the picture.
+   - +5 points for detailed descriptions that go beyond basic identification.
+   - +3 points for creative or contextual descriptions, such as evoking atmosphere.
+3. **Avoid Over-Scoring**: Do not award points if details are repetitive, irrelevant, or inaccurate. Ensure each scored aspect directly matches the picture details.
+4. **Response Format**: Your response should contain only the numeric score for the description and no other text. Never assign points unless the description adds meaningful value based on the criteria.
+
+Picture Details for Evaluation:
+- **Objects**: Narrow street, yellow and beige buildings, balconies, windows with shutters, overhanging awnings, small tables and chairs.
+- **Features**: Flower pots with greenery, colorful flowers, lamps, inviting lighting.
+- **Context**: Quiet European street, calm, cozy, Mediterranean town ambiance.
+
+""";
     } else {
       return "You are an AI assistant tasked with analyzing the user's message. Your goal is to check if the message contains any mention of a correct guess or answer."
           "If the message contains keywords or phrases like 'correct', 'right', 'I got it', 'nailed it', 'that's it', or any other pattern that fits a correct guess or answer (using pattern-matching techniques), return [correct]."

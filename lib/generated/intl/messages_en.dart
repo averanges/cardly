@@ -28,17 +28,44 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Already have an account?"),
         "anUnexpectedErrorOccurred": MessageLookupByLibrary.simpleMessage(
             "An unexpected error occurred."),
+        "areYouSureYouWantToDeleteYourAccountThis":
+            MessageLookupByLibrary.simpleMessage(
+                "Are you sure you want to delete your account? This action can not be undone."),
+        "back": MessageLookupByLibrary.simpleMessage("Back"),
         "backToLogin": MessageLookupByLibrary.simpleMessage("Back to Login?"),
+        "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+        "changePassword":
+            MessageLookupByLibrary.simpleMessage("Change Password"),
+        "changeYouPrivatePassword": MessageLookupByLibrary.simpleMessage(
+            "Change you private password."),
+        "chooseTargetLanguage":
+            MessageLookupByLibrary.simpleMessage("Choose Target Language"),
         "clickOnCardToStartYourLearningJourney":
             MessageLookupByLibrary.simpleMessage(
                 "Click on card to start your learning journey!"),
+        "continueButton": MessageLookupByLibrary.simpleMessage("Continue"),
+        "createNewAccount":
+            MessageLookupByLibrary.simpleMessage("Create new account"),
+        "delete": MessageLookupByLibrary.simpleMessage("Delete"),
+        "deleteAccount":
+            MessageLookupByLibrary.simpleMessage("Delete account?"),
+        "deleteYourAccount":
+            MessageLookupByLibrary.simpleMessage("Delete your account"),
+        "deleteYourAccountPermanentlyActionCannotBeUndone":
+            MessageLookupByLibrary.simpleMessage(
+                "Delete your account permanently. Action cannot be undone."),
         "dontHaveAnAccountYet":
             MessageLookupByLibrary.simpleMessage("Don`t have an account yet?"),
         "emailHintWIthDots": MessageLookupByLibrary.simpleMessage("Email..."),
+        "finish": MessageLookupByLibrary.simpleMessage("Finish"),
         "forgotPassword":
             MessageLookupByLibrary.simpleMessage("Forgot Password?"),
         "getStarted": MessageLookupByLibrary.simpleMessage("Get Started"),
         "guestMode": MessageLookupByLibrary.simpleMessage("Guest Mode"),
+        "itWillAllowYouSaveYourProgress": MessageLookupByLibrary.simpleMessage(
+            "It will allow you save your progress."),
+        "learningTargetLanguage":
+            MessageLookupByLibrary.simpleMessage("Learning Target Language"),
         "logOut": MessageLookupByLibrary.simpleMessage("Log out"),
         "logOutFromThisProfile":
             MessageLookupByLibrary.simpleMessage("Log out from this profile."),
@@ -48,12 +75,26 @@ class MessageLookup extends MessageLookupByLibrary {
         "mainSloganWord3": MessageLookupByLibrary.simpleMessage("Card"),
         "manageYourAccountSettings": MessageLookupByLibrary.simpleMessage(
             "Manage your account settings."),
+        "manageYourPersonalDetailsBelow": MessageLookupByLibrary.simpleMessage(
+            "Manage your personal details below."),
         "manageYourProfileDetails": MessageLookupByLibrary.simpleMessage(
             "Manage your profile details."),
+        "nameHint": MessageLookupByLibrary.simpleMessage("Your Name..."),
         "noNeedToWorryTellUsYourEmailAndWe": MessageLookupByLibrary.simpleMessage(
             "No need to worry. Tell us your e-mail and we will send you link to reset you password!"),
+        "notAllowedInGuestMode":
+            MessageLookupByLibrary.simpleMessage("Not allowed in Guest Mode"),
+        "oneMoreQuestionHint":
+            MessageLookupByLibrary.simpleMessage("One more question..."),
         "passwordHintWithDots":
             MessageLookupByLibrary.simpleMessage("Password..."),
+        "personalDetails":
+            MessageLookupByLibrary.simpleMessage("Personal Details"),
+        "pickLanguageDisplayedAsBasicLanguage":
+            MessageLookupByLibrary.simpleMessage(
+                "Pick language displayed as basic language"),
+        "pickLanguageYouWouldLikeToLearn": MessageLookupByLibrary.simpleMessage(
+            "Pick language you would like to learn"),
         "profile": MessageLookupByLibrary.simpleMessage("Profile"),
         "registration": MessageLookupByLibrary.simpleMessage("Registration"),
         "repeatPasswordHintWithDots":
@@ -64,7 +105,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "signUp": MessageLookupByLibrary.simpleMessage("Sign Up"),
         "targetLanguage":
             MessageLookupByLibrary.simpleMessage("Target Language"),
+        "tellUsALittleAboutYourselfyouCanSkipThis":
+            MessageLookupByLibrary.simpleMessage(
+                "Tell us a little about yourself...you can skip this(:"),
+        "translationLanguage":
+            MessageLookupByLibrary.simpleMessage("Translation Language"),
         "userAlreadyLoggedIn":
-            MessageLookupByLibrary.simpleMessage("User already logged in")
+            MessageLookupByLibrary.simpleMessage("User already logged in"),
+        "youCanSetANewPasswordForYouAccountBelow":
+            MessageLookupByLibrary.simpleMessage(
+                "You can set a new password for you account below.")
       };
 }

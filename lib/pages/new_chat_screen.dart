@@ -512,11 +512,13 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
               actions: [
                 IconButton(
                   onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) => SettingsModalWindow(
-                              globalSettings: globalSettings,
-                            ));
+                    tasksCompletedViewModel
+                        .addProgressForPictureDescription(10);
+                    // showDialog(
+                    //     context: context,
+                    //     builder: (BuildContext context) => SettingsModalWindow(
+                    //           globalSettings: globalSettings,
+                    //         ));
                   },
                   icon: const CircleAvatar(
                     radius: 23,
@@ -904,7 +906,24 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                             print(
                                                 'Task $taskCompletionResponse');
 
-                                            if (taskCompletionResponse
+                                            if (widget.scenarioType ==
+                                                ScenarioTypes.observation) {
+                                              String? progressString =
+                                                  taskCompletionResponse
+                                                      .split('')
+                                                      .where((el) =>
+                                                          RegExp(r'-?\d+')
+                                                              .hasMatch(el))
+                                                      .join('');
+                                              if (int.tryParse(
+                                                      progressString) !=
+                                                  null) {
+                                                tasksCompletedViewModel
+                                                    .addProgressForPictureDescription(
+                                                        int.parse(
+                                                            progressString));
+                                              }
+                                            } else if (taskCompletionResponse
                                                     .contains('[correct]') &&
                                                 widget.scenarioType ==
                                                     ScenarioTypes.charades) {
@@ -913,8 +932,7 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                   from: 0.0);
                                               _correctGuessAmount++;
                                               setState(() {});
-                                            }
-                                            if (widget.scenarioType ==
+                                            } else if (widget.scenarioType ==
                                                     ScenarioTypes.question &&
                                                 widget.chatDifficultLevel ==
                                                     ChatDifficultLevels
@@ -963,11 +981,10 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                               for (var i = 0;
                                                   i < taskCompletionList.length;
                                                   i++) {
-                                                if (taskCompletionList[i] ==
-                                                        '[' &&
+                                                if (taskCompletionList[i] == '[' &&
                                                     int.tryParse(
-                                                            taskCompletionList[
-                                                                i + 1]) !=
+                                                            taskCompletionList[i +
+                                                                1]) !=
                                                         null &&
                                                     taskCompletionList[i + 2] ==
                                                         ']') {
@@ -977,15 +994,14 @@ class _ChatWidgetState extends State<ChatWidget> with TickerProviderStateMixin {
                                                             taskCompletionList[
                                                                 i]) !=
                                                         null &&
-                                                    taskCompletionList[i - 1] !=
-                                                        "-" &&
-                                                    int.parse(
-                                                            taskCompletionList[
-                                                                i]) >=
+                                                    (i != 0 &&
+                                                        taskCompletionList[
+                                                                i - 1] !=
+                                                            "-") &&
+                                                    int.parse(taskCompletionList[
+                                                            i]) >=
                                                         0 &&
-                                                    int.parse(
-                                                            taskCompletionList[
-                                                                i]) <
+                                                    int.parse(taskCompletionList[i]) <
                                                         3) {
                                                   taskCompletionResponse =
                                                       taskCompletionList[i];
@@ -1443,6 +1459,7 @@ class _TaskCompletenessBarState extends State<TaskCompletenessBar> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.progress);
     return Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -1564,7 +1581,10 @@ class _TaskCompletenessBarState extends State<TaskCompletenessBar> {
                                 widget.progress,
                             height: 30,
                             decoration: BoxDecoration(
-                              color: customGreenColor.withOpacity(0.8),
+                              gradient: const LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  colors: [semiGreyColor, primaryPurpleColor]),
+                              color: primaryPurpleColor.withOpacity(0.8),
                             ),
                           ),
 
@@ -1578,7 +1598,10 @@ class _TaskCompletenessBarState extends State<TaskCompletenessBar> {
                                 Icon(
                                   widget.scenarioType == ScenarioTypes.question
                                       ? Iconsax.task
-                                      : FontAwesomeIcons.lightbulb,
+                                      : widget.scenarioType ==
+                                              ScenarioTypes.observation
+                                          ? Iconsax.picture_frame
+                                          : FontAwesomeIcons.lightbulb,
                                   size: 14,
                                   color: lightGreyTextColor,
                                 ),
@@ -1588,7 +1611,10 @@ class _TaskCompletenessBarState extends State<TaskCompletenessBar> {
                                 Text(
                                   widget.scenarioType == ScenarioTypes.question
                                       ? 'Tasks ${widget.completedTasks}/${widget.allTasks}'
-                                      : "Correct guesses: ${widget.correctGuess}",
+                                      : widget.scenarioType ==
+                                              ScenarioTypes.observation
+                                          ? "Picture: ${(widget.progress * 100).floor()}%"
+                                          : "Correct guesses: ${widget.correctGuess}",
                                   style: GoogleFonts.jost(
                                       fontSize: 14, color: lightGreyTextColor),
                                 ),

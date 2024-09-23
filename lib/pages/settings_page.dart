@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:sound/features/chat/view_model/auth_view_model.dart';
+import 'package:sound/generated/l10n.dart';
 import 'package:sound/pages/change_password_page.dart';
 import 'package:sound/pages/personal_details_page.dart';
 import 'package:sound/pages/template_gallery/ui/widgets/custom_page_route_build.dart';
@@ -29,11 +30,11 @@ class SettingsPage extends StatelessWidget {
                       Iconsax.user_add,
                       color: customGreenColor,
                     ),
-                    title: Text('Create new account',
+                    title: Text(S.of(context).createNewAccount,
                         style: GoogleFonts.jost(
                             textStyle: const TextStyle(
                                 fontSize: 16, color: customGreenColor))),
-                    subtitle: Text('It will allow you save your progress.',
+                    subtitle: Text(S.of(context).itWillAllowYouSaveYourProgress,
                         style: GoogleFonts.jost(
                             textStyle: const TextStyle(
                                 fontSize: 12, color: lightGreyTextColor))),
@@ -51,24 +52,25 @@ class SettingsPage extends StatelessWidget {
                 GestureDetector(
                   onTap: () {
                     if (authViewModel.isGuestMode) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           backgroundColor: Colors.orange,
-                          content: Text('Not allowed in Guest Mode')));
+                          content: Text(S.of(context).notAllowedInGuestMode)));
                       return;
                     }
                     Navigator.of(context)
-                        .push(customPageRouteBuild(const SideMenuItemsLayer(
-                      sideMenuTitle: 'Personal Details',
-                      sideMenuSubTitle: 'Manage your personal details below.',
-                      child: PersonalDetailsPage(),
+                        .push(customPageRouteBuild(SideMenuItemsLayer(
+                      sideMenuTitle: S.of(context).personalDetails,
+                      sideMenuSubTitle:
+                          S.of(context).manageYourPersonalDetailsBelow,
+                      child: const PersonalDetailsPage(),
                     )));
                   },
                   child: ListTile(
                     leading: const Icon(Icons.person_outline_rounded),
-                    title: Text('Personal Details',
+                    title: Text(S.maybeOf(context)!.personalDetails,
                         style: GoogleFonts.jost(
                             textStyle: const TextStyle(fontSize: 16))),
-                    subtitle: Text('Manage your personal details here.',
+                    subtitle: Text(S.of(context).manageYourPersonalDetailsBelow,
                         style: GoogleFonts.jost(
                             textStyle: const TextStyle(
                                 fontSize: 12, color: lightGreyTextColor))),
@@ -81,25 +83,25 @@ class SettingsPage extends StatelessWidget {
                 GestureDetector(
                   onTap: () {
                     if (authViewModel.isGuestMode) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           backgroundColor: Colors.orange,
-                          content: Text('Not allowed in Guest Mode')));
+                          content: Text(S.of(context).notAllowedInGuestMode)));
                       return;
                     }
                     Navigator.of(context)
-                        .push(customPageRouteBuild(const SideMenuItemsLayer(
-                      sideMenuTitle: 'Change Password',
+                        .push(customPageRouteBuild(SideMenuItemsLayer(
+                      sideMenuTitle: S.of(context).changePassword,
                       sideMenuSubTitle:
-                          'You can set a new password for you account below.',
-                      child: ChangePasswordPage(),
+                          S.of(context).youCanSetANewPasswordForYouAccountBelow,
+                      child: const ChangePasswordPage(),
                     )));
                   },
                   child: ListTile(
                     leading: const Icon(Icons.lock_outline),
-                    title: Text('Change Password',
+                    title: Text(S.of(context).changePassword,
                         style: GoogleFonts.jost(
                             textStyle: const TextStyle(fontSize: 16))),
-                    subtitle: Text('Manage your personal details here.',
+                    subtitle: Text(S.of(context).changeYouPrivatePassword,
                         style: GoogleFonts.jost(
                             textStyle: const TextStyle(
                                 fontSize: 12, color: lightGreyTextColor))),
@@ -129,12 +131,14 @@ class SettingsPage extends StatelessWidget {
                         Iconsax.trash,
                         color: Colors.red,
                       ),
-                      title: Text('Delete your account',
+                      title: Text(S.of(context).deleteYourAccount,
                           style: GoogleFonts.jost(
                               textStyle: const TextStyle(
                                   fontSize: 16, color: Colors.red))),
                       subtitle: Text(
-                          'Delete your account permanently. Action cannot be undone.',
+                          S
+                              .of(context)
+                              .deleteYourAccountPermanentlyActionCannotBeUndone,
                           style: GoogleFonts.jost(
                               textStyle: const TextStyle(
                                   fontSize: 12, color: lightGreyTextColor))),
@@ -178,11 +182,10 @@ class _DeleteModalWindowState extends State<DeleteModalWindow> {
                 const SizedBox(
                   height: 20,
                 ),
-                Text('Delete account?',
+                Text(S.of(context).deleteAccount,
                     style: GoogleFonts.jost(
                         textStyle: const TextStyle(fontSize: 20))),
-                Text(
-                    'Are you sure you want to delete your account? This action can not be undone.',
+                Text(S.of(context).areYouSureYouWantToDeleteYourAccountThis,
                     style: GoogleFonts.jost(
                         textStyle: const TextStyle(color: lightGreyTextColor))),
                 const SizedBox(
@@ -208,7 +211,7 @@ class _DeleteModalWindowState extends State<DeleteModalWindow> {
                     child: _isDeleting
                         ? const CircularProgressIndicator()
                         : Text(
-                            'Delete',
+                            S.of(context).delete,
                             style: GoogleFonts.jost(
                                 textStyle:
                                     const TextStyle(color: Colors.redAccent)),
@@ -229,7 +232,7 @@ class _DeleteModalWindowState extends State<DeleteModalWindow> {
                     decoration: const BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(20)),
                         color: customButtonColor),
-                    child: Text('Cancel',
+                    child: Text(S.of(context).cancel,
                         style: GoogleFonts.jost(
                             textStyle:
                                 const TextStyle(color: lightGreyTextColor))),
